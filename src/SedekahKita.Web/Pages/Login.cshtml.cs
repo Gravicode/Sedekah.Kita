@@ -14,12 +14,12 @@ namespace SedekahKita.Web.Pages
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-        SedekahDB db { set; get; }
+        
         public string ReturnUrl { get; set; }
         public async Task<IActionResult>
             OnGetAsync(string paramUsername, string paramPassword)
         {
-            if (db == null) db = new SedekahDB();
+            
             string returnUrl = Url.Content("~/");
             try
             {
@@ -30,7 +30,8 @@ namespace SedekahKita.Web.Pages
             }
             catch { }
             bool isAuthenticate = true;
-            isAuthenticate = db.UserProfiles.Any(x => x.Username == paramUsername && x.Password == paramPassword);
+            UserProfileService svc = new UserProfileService();
+            isAuthenticate = svc.TryLogin(paramUsername, paramPassword);
             // In this example we just log the user in
             // (Always log the user in for this demo)
             if (isAuthenticate)

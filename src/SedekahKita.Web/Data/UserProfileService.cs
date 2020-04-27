@@ -13,7 +13,12 @@ namespace SedekahKita.Web.Data
         public UserProfileService()
         {
             if (db == null) db = new SedekahDB();
-            db.Database.EnsureCreated();
+            //db.Database.EnsureCreated();
+        }
+
+        public bool TryLogin(string paramUsername, string paramPassword)
+        {
+            return db.UserProfiles.Any(x => x.Username == paramUsername && x.Password == paramPassword);
         }
         public bool DeleteData(object Id)
         {
