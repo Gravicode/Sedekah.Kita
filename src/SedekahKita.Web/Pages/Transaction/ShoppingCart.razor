@@ -1,0 +1,354 @@
+﻿@namespace SedekahKita.Web.Pages.Transaction
+@page "/transaction/cart"
+@using SedekahKita.Web.Models
+@using SedekahKita.Web.Data
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavMgr
+@using SedekahKita.Web.Pages.Common
+@using System.IO
+@using SedekahKita.Tools
+@inject IToastService toastService
+
+@inject Blazored.LocalStorage.ILocalStorageService sessionStorage
+
+<h3>Keranjang Belanja</h3>
+<p>
+    Monggo di cek kembali belanjaannya, jangan sampai salah hitung, jika sudah silakan tekan tombol proses. Ajkhr
+</p>
+
+@if (ProsesSelesai)
+{
+    <div class="alert alert-info">Proses Anda sudah selesai, silakan <a href="/">klik disini</a></div>
+}
+else
+{
+
+    @if (DataProduct == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        @if (Header != null)
+        {
+
+            <div>
+                <div class="form-group">
+                    <label for="noorder">No.Order:</label>
+                    <input @bind="@Header.NoOrder" readonly type="text" class="form-control" id="noorder">
+                </div>
+                <div class="form-group">
+                    <label for="pemesan">Tanggal Order:</label>
+                    <input @bind="@Header.TanggalOrder" type="datetime" class="form-control" id="pemesan">
+                </div>
+                <div class="form-group">
+                    <label for="pemesan">Pemesan:</label>
+                    <input @bind="@Header.NamaPemesan" type="text" class="form-control" id="pemesan">
+                </div>
+                <div class="form-group">
+                    <label for="alamat">Alamat:</label>
+                    <input @bind="@Header.Alamat" type="text" class="form-control" id="alamat">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input @bind="@Header.Email" type="text" class="form-control" id="email">
+                </div>
+                <div class="form-group">
+                    <label for="phone">No.HP:</label>
+                    <input @bind="@Header.Phone" type="text" class="form-control" id="phone">
+                </div>
+            </div>
+        }
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Qty</th>
+                    <th>Harga</th>
+                    <th>Satuan</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+
+            </thead>
+            <tbody>
+                @foreach (var item in DataProduct)
+                {
+                    <tr>
+                        <td>@item.Nama</td>
+                        <td><input @bind="@item.Qty" min="0" max="9999" type="number" /></td>
+
+                        <td>Rp. @item.Harga.ToString("n2")</td>
+                        <td>@item.Satuan</td>
+                        <td>
+                            @{
+                                item.TotalHarga = item.Qty * item.Harga;
+                            }
+                            Rp. @item.TotalHarga.ToString("n2")
+
+                        </td>
+                        <td><button class="btn btn-danger" @onclick="@(() => Batal(item))">Batal</button></td>
+                    </tr>
+                }
+                <tr>
+                    <td colspan="4" style="text-align:right">Total Harga</td>
+                    <td>
+                        <b>@(Kalkulasi())</b>
+                    </td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="form-check">
+            <div class="checkbox">
+                <label><input @bind="@UseDeliveryOrder" type="checkbox">Gunakan Pengantar Barang</label>
+            </div>
+        </div>
+        <button @onclick="Kembali" class="btn btn-success">Kembali Belanja</button>
+        <button @onclick="Proses" class="btn btn-primary">Proses Order</button>
+
+    }
+}
+
+@code {
+    public bool UseDeliveryOrder { get; set; } = true;
+    public bool ProsesSelesai { get; set; } = false;
+    Order Header;
+    List<OrderDetail> DataProduct;
+    public CartTemp MyCart { get; set; }
+    SedekahKita.Web.Data.OrderService service;
+    StoreService storeService;
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    List<ProductPhoto> AllImages;
+    SedekahKita.Web.Data.ProductPhotoService fotoProductService;
+
+    void Batal(OrderDetail item)
+    {
+        MyCart.Detail.Remove(item.ProductId);
+        DataProduct.Remove(item);
+    }
+
+    async Task Proses()
+    {
+        if (service.CloseOrder(Header, DataProduct))
+        {
+            //send notif to toko
+            var TokoIds = (from x in DataProduct
+                           select x.TokoId).Distinct().ToList();
+            foreach (var tokoid in TokoIds)
+            {
+                var Message = "";
+                var DetailMessage = "";
+                var selToko = storeService.GetDataById(tokoid);
+                if (selToko != null)
+                {
+                    Message += $"Assalamualaikum, Anda mendapat order dari {Header.NamaPemesan}, hub ke no: {Header.Phone} atau email: {Header.Email}, berikut pesanannya:";
+                    var filtered = DataProduct.Where(x => x.TokoId == tokoid);
+                    var counter = 0;
+                    var total = 0.0;
+                    foreach (var barang in filtered)
+                    {
+                        if (barang.Qty > 0)
+                        {
+                            counter++;
+                            DetailMessage += $"{counter}.{barang.Nama} x {barang.Qty} {barang.Satuan} = Rp. {barang.TotalHarga}, ";
+                            total += barang.TotalHarga;
+                        }
+
+                    }
+                    DetailMessage += $"Total Rp. {total.ToString("n2")}. No Order : {Header.NoOrder}";
+                    Message += DetailMessage;
+                    try
+                    {
+                        var hasil = await SmsService.SendSms(Message, selToko.Phone);
+                        Console.WriteLine(hasil);
+                    }
+                    catch { }
+                    try
+                    {
+                        var hasil = await MailService.SendEmail($"Pesanan Baru dari Toko Online Jamaah - No. Order: {Header.NoOrder}", Message, selToko.Email, false);
+
+                    }
+                    catch
+                    {
+
+                    }
+                    //send notif to customer
+                    Message = $"Assalamualaikum, pesanan Anda sedang diproses, detailnya:";
+                    Message += DetailMessage + $", sekarang menunggu pengantar barang. Tambahkan ongkos kirim Rp.{AppConstants.BiayaKirim.ToString("n2")}";
+                    try
+                    {
+                        var hasil = await SmsService.SendSms(Message, Header.Phone);
+                        Console.WriteLine(hasil);
+                    }
+                    catch { }
+                    try
+                    {
+                        var hasil = await MailService.SendEmail($"Pesanan Baru dari Toko Online Jamaah - No. Order: {Header.NoOrder}", Message, Header.Email, false);
+
+                    }
+                    catch
+                    {
+
+                    }
+
+                    if (UseDeliveryOrder)
+                    {
+                        //add delivery order
+                        OrderDeliveryService dlvSvc = new OrderDeliveryService();
+                        var newItem = new OrderDelivery()
+                        {
+                            BiayaKirim = AppConstants.BiayaKirim, DeskripsiBarang = DetailMessage, OrderId = Header.Id, Pemesan = selToko.Nama, PemesanAlamat = selToko.Alamat, PemesanEmail=selToko.Email, PemesanPhone=selToko.Phone,
+                            Penerima = Header.NamaPemesan, PenerimaAlamat = Header.Alamat, PenerimaEmail=Header.Email, PenerimaPhone=Header.Phone, Status = StatusDelivery.Menunggu, TanggalDelivery=DateTime.Now
+                        };
+                        var res = dlvSvc.InsertData(newItem);
+                        if (res)
+                        {
+                            //send notif to driver
+                            DriverService drvSvc = new DriverService();
+                            var drivers = drvSvc.GetAvailableDriver();
+                            Message = $"Ada order baru dengan nomor [{Header.NoOrder}] silakan buka {NavMgr.BaseUri + "/transaction/delivery-order"}";
+                            foreach (var driver in drivers)
+                            {
+                                try
+                                {
+                                    var hasil = await SmsService.SendSms(Message, driver.Phone);
+                                    Console.WriteLine(hasil);
+                                }
+                                catch { }
+                                try
+                                {
+                                    var hasil = await MailService.SendEmail($"Pesanan Baru dari Toko Online Jamaah - No. Order: {Header.NoOrder}", Message, driver.Email, false);
+
+                                }
+                                catch
+                                {
+
+                                }
+                            }
+                        }
+
+
+                    }
+                }
+            }
+            MyCart.Header = new Order();
+            MyCart.Detail = new Dictionary<long, OrderDetail>();
+            var cart = ConvertChart();
+            await sessionStorage.SetItemAsync("cart", cart);
+            ProsesSelesai = true;
+            toastService.ShowSuccess("Order Anda berhasil di proses, ajkhr", "Info");
+        }
+        else
+        {
+            toastService.ShowError("Order Anda gagal di proses, terjadi kesalahan di sistem, ajkhr", "Perhatian");
+
+        }
+
+    }
+
+    Cart ConvertChart()
+    {
+        var item = new Cart();
+        item.Header = MyCart.Header;
+        item.Detail = new List<OrderDetail>();
+        foreach (var x in MyCart.Detail)
+        {
+            item.Detail.Add(x.Value);
+        }
+        return item;
+    }
+    async Task Kembali()
+    {
+        //var realChart = ConvertChart();
+        //await sessionStorage.SetItemAsync("cart",realChart);
+        NavMgr.NavigateTo("/transaction/gallery");
+    }
+    public string Kalkulasi()
+    {
+        var Total = 0.0;
+        if (DataProduct != null)
+        {
+            foreach (var item in DataProduct)
+            {
+                item.TotalHarga = item.Qty * item.Harga;
+                Total += item.TotalHarga;
+            }
+        }
+        Header.TotalHarga = Total;
+        //sync to storage
+        var cart = ConvertChart();
+        sessionStorage.SetItemAsync("cart", cart);
+
+        return $"Rp. {Total.ToString("n2")}";
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+        }
+        if (service == null) service = new OrderService();
+        if (storeService == null) storeService = new StoreService();
+        if (fotoProductService == null) fotoProductService = new ProductPhotoService();
+        AllImages = fotoProductService.GetAllData();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (MyCart == null)
+            {
+                try
+                {
+                    var temp = await sessionStorage.GetItemAsync<Cart>("cart");
+                    MyCart = new CartTemp() { Header = new Order(), Detail = new Dictionary<long, OrderDetail>() };
+                    if (temp != null)
+                    {
+                        MyCart.Header = temp.Header;
+                        foreach (var item in temp.Detail)
+                        {
+                            MyCart.Detail.Add(item.ProductId, item);
+                        }
+
+                    }
+                }
+                catch
+                {
+                    MyCart = new CartTemp() { Header = new Order(), Detail = new Dictionary<long, OrderDetail>() };
+                }
+                DataProduct = (from x in MyCart.Detail
+                               select x.Value).ToList();
+                Header = MyCart.Header;
+                if (string.IsNullOrEmpty(Header.NoOrder))
+                {
+                    UserProfileService svc = new UserProfileService();
+                    Header.NoOrder = $"OD-{GenRandomNum()}-{DateTime.Now.ToString("yyyyMMdd")}";//$"ORDER-{DateTime.Now.ToString("dd/MMM/yyyy")}-{UserName}-{NumberGen.GenerateNumber(5)}";
+                    Header.Pemesan = UserName;
+                    var selItem = svc.GetItemByEmail(UserName);
+                    Header.Alamat = selItem.Alamat;
+                    Header.Email = selItem.Email;
+                    Header.Phone = selItem.Phone;
+                    Header.NamaPemesan = selItem.FullName;
+                    Header.TanggalOrder = DateTime.Now;
+
+                }
+                StateHasChanged();
+            }
+        }
+    }
+
+    string GenRandomNum()
+    {
+        Random rand = new Random(100);
+        int ccc=  rand.Next(00000, 99999);
+        return ccc.ToString();
+    }
+}

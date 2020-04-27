@@ -1,0 +1,119 @@
+﻿@layout NoAuthLayout
+@using SedekahKita.Web.Models
+@using SedekahKita.Web.Data
+@inject NavigationManager NavMgr
+@page "/auth/register"
+@inject IToastService toastService
+@using SedekahKita.Tools
+@if (RegisterSuccess)
+{
+
+    <div class="alert alert-success">Akun berhasil dibuat, silakan <a href="/auth/login">Masuk</a>.</div>
+
+}
+else
+{
+    <h1>Daftar ke Toko Online (Go-UB)</h1>
+    <p>Assalamualaikum sedulur, monggo di isi data diri dibawah, Ajkhr</p>
+    <hr>
+    <div>
+        <div class="form-group">
+            <label for="fullname"><b>Nama Lengkap</b></label>
+            <input @bind="DataUser.FullName" type="text" class="form-control" placeholder="Masukan Nama Lengkap" name="fullname">
+        </div>
+        <div class="form-group">
+            <label for="phone"><b>Telepon</b></label>
+            <input @bind="DataUser.Phone" type="text" class="form-control" placeholder="Masukan No. HP" name="phone">
+        </div>
+        <div class="form-group">
+            <label for="email"><b>Email</b></label>
+            <input @bind="DataUser.Username" class="form-control" type="text" placeholder="Masukan Email" name="email">
+        </div>
+        <div class="form-group">
+            <label for="alamat"><b>Alamat</b></label>
+            <input @bind="DataUser.Alamat" class="form-control" type="text" placeholder="Masukan Alamat" name="alamat">
+        </div>
+        <div class="form-group">
+            <label for="psw"><b>Password</b></label>
+            <input @bind="DataUser.Password" class="form-control" type="password" placeholder="Masukan Password" name="psw">
+        </div>
+        <div class="form-group">
+            <label for="psw-repeat"><b>Ulang Password</b></label>
+            <input @bind="RetypePass" type="password" class="form-control" placeholder="Repeat Password" name="psw-repeat">
+        </div>
+
+        <button @onclick="DaftarUser" class="btn btn-success">Daftar</button>
+        <button @onclick="Kembali" class="btn btn-primary">Kembali ke Login</button>
+
+    </div>
+}
+
+@code {
+    UserProfile DataUser = new UserProfile();
+    string RetypePass;
+    string ErrorMsg = string.Empty;
+    bool RegisterSuccess = false;
+
+   async Task  Kembali()
+    {
+        NavMgr.NavigateTo("/auth/login");
+    }
+    void DaftarUser()
+    {
+        ErrorMsg = "";
+        UserProfileService svc = new UserProfileService();
+        if (string.IsNullOrEmpty(DataUser.Username))
+        {
+            ErrorMsg += "Tolong di isi email. ";
+
+        }
+        if (!SedekahKita.Tools.FormValidation.IsValidEmail(DataUser.Username))
+        {
+            ErrorMsg += "Format email tidak valid";
+
+        }
+        if (string.IsNullOrEmpty(DataUser.Password))
+        {
+            ErrorMsg += "Tolong di isi password. ";
+
+        }
+        if (string.IsNullOrEmpty(DataUser.Phone))
+        {
+            ErrorMsg += "Tolong di isi no hp. ";
+
+        }
+        if (string.IsNullOrEmpty(DataUser.FullName))
+        {
+            ErrorMsg += "Tolong di isi nama lengkap. ";
+
+        }
+        if (string.IsNullOrEmpty(DataUser.Alamat))
+        {
+            ErrorMsg += "Tolong di isi alamat. ";
+
+        }
+        if (DataUser.Password != RetypePass)
+        {
+            ErrorMsg += "Password tidak sesuai dengan ulang password. ";
+
+        }
+        if (svc.IsUserExists(DataUser.Username))
+        {
+            ErrorMsg += "User sudah terdaftar sebelumnya, gunakan email lain. ";
+
+        }
+        if (ErrorMsg.Length > 0)
+        {
+            toastService.ShowWarning(ErrorMsg, "Perhatian");
+            return;
+        }
+
+        DataUser.Email = DataUser.Username;
+
+        if (svc.InsertData(DataUser))
+        {
+            RegisterSuccess = true;
+            StateHasChanged();
+        }
+    }
+}

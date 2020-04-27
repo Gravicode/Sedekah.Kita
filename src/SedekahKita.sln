@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29926.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SedekahKita.Web", "SedekahKita.Web\SedekahKita.Web.csproj", "{47F88337-17DF-404E-A3CA-934DC007EAA9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SedekahKita.Tools", "SedekahKita.Tools\SedekahKita.Tools.csproj", "{CC3CF3AF-130E-4A8A-8F2A-919F2701F196}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{47F88337-17DF-404E-A3CA-934DC007EAA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47F88337-17DF-404E-A3CA-934DC007EAA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47F88337-17DF-404E-A3CA-934DC007EAA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47F88337-17DF-404E-A3CA-934DC007EAA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC3CF3AF-130E-4A8A-8F2A-919F2701F196}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC3CF3AF-130E-4A8A-8F2A-919F2701F196}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC3CF3AF-130E-4A8A-8F2A-919F2701F196}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC3CF3AF-130E-4A8A-8F2A-919F2701F196}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FDE26FDA-9573-4C8D-BD3F-6DCDC7BFD07D}
+	EndGlobalSection
+EndGlobal

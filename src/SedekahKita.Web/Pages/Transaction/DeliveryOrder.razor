@@ -1,0 +1,205 @@
+﻿@page "/transaction/delivery-order"
+@inject IToastService toastService
+@inject IJSRuntime jsRuntime
+@using SedekahKita.Web.Models
+@using SedekahKita.Web.Data
+@inject NavigationManager NavMgr
+@using SedekahKita.Web.Pages.Common
+@namespace SedekahKita.Web.Pages.Transaction
+@using SedekahKita.Tools
+<h1>Daftar Order Delivery</h1>
+
+<p>Berikut adalah daftar delivery order yang bisa diambil oleh driver.</p>
+
+@if (DataOrderDelivery == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <body onbeforeunload="TestDataTablesRemove('#gridData')">
+        <table id="gridData" name="gridData" class="table">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Driver</th>
+
+                    <th>Pemesan</th>
+                    <th>Pemesan HP</th>
+                    <th>Pemesan Alamat</th>
+
+                    <th>Penerima</th>
+                    <th>Penerima HP</th>
+                    <th>Penerima Alamat</th>
+
+                    <th>Status</th>
+                    <th>Deskripsi Barang</th>
+                    <th>Actions</th>
+                </tr>
+
+            </thead>
+            <tbody>
+                @foreach (var item in DataOrderDelivery)
+                {
+                    <tr>
+                        <td>@item.TanggalDelivery</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.DriverFullName))
+                            {
+                                @item.DriverFullName
+                            }
+                            else
+                            {
+                                <b>Order Belum Diambil</b>
+                            }
+                        </td>
+                        <td>@item.Pemesan</td>
+                        <td>@item.PemesanPhone</td>
+                        <td>@item.PemesanAlamat</td>
+
+                        <td>@item.Penerima</td>
+                        <td>@item.PenerimaPhone</td>
+                        <td>@item.PenerimaAlamat</td>
+
+                        <td>@item.Status.ToString()</td>
+                        <td>@item.DeskripsiBarang</td>
+
+                        <td>
+                            @if (item.DriverUserName == UserName)
+                            {
+                                <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah Status" />
+                                <input type="button" class="btn btn-success" @onclick="(() => BukaRute(item.Id))"  value="Rute" />
+
+                                
+                            }
+                    else if (item.Status == StatusDelivery.Menunggu && IsMeDriver)
+                    {
+                        <input type="button" class="btn btn-danger" @onclick="(() => PrepareForTake(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Ambil" />
+                    }
+                    else
+                    {
+                        <p>-</p>
+                    }
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </body>
+}
+
+<ConfirmDialog OnClick="@TakeOrder" Message="Anda yakin ingin mengambil order ini?" />
+<DeliveryOrderDetail TaskObject=@itemObject DataChanged="@DataChanged">
+    <CustomHeader>@customHeader</CustomHeader>
+</DeliveryOrderDetail>
+
+@code {
+    public bool IsMeDriver { get; set; }
+    SedekahKita.Web.Data.DriverService driverService;
+
+    SedekahKita.Web.Data.OrderDeliveryService service;
+    string customHeader = string.Empty;
+    List<OrderDelivery> DataOrderDelivery;
+    OrderDelivery itemObject = new OrderDelivery();
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    void BukaRute(long ItemId)
+    {
+        NavMgr.NavigateTo($"/transaction/map-route/{ItemId}");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (service == null) service = new OrderDeliveryService();
+        if (driverService == null) driverService = new DriverService ();
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            // Perform an action only available to authenticated (signed-in) users.
+            DataOrderDelivery = service.GetLastWeekData();
+            IsMeDriver = driverService.IsDriverExists(UserName);
+        }
+
+
+    }
+
+
+
+    private async void DataChanged()
+    {
+        DataOrderDelivery = service.GetLastWeekData();
+        StateHasChanged();
+    }
+
+    private void PrepareForEdit(OrderDelivery item)
+    {
+        customHeader = "Ubah Status Delivery";
+        itemObject = item;
+    }
+    private void PrepareForTake(OrderDelivery item)
+    {
+        itemObject = item;
+    }
+    private async Task TakeOrder()
+    {
+        OrderService orderService = new OrderService();
+        DriverService svc = new DriverService();
+        //update order info
+        var selUser = svc.GetDataByUsername(UserName);
+        itemObject.Status = StatusDelivery.Mengambil;
+        itemObject.DriverEmail = selUser.Email;
+        itemObject.DriverFullName = selUser.FullName;
+        itemObject.DriverId = selUser.Id;
+        itemObject.DriverPhone = selUser.Phone;
+        itemObject.DriverUserName = UserName;
+        var res = service.UpdateData(itemObject);
+        await jsRuntime.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        if (res)
+        {
+
+            var selOrder = orderService.GetDataById(itemObject.OrderId);
+            var Message = $"Order dengan No. [{selOrder.NoOrder}] akan diambil oleh {selUser.FullName}, hubungi pengantar di {selUser.Phone} / {selUser.Email}. Biaya kirim: Rp.{itemObject.BiayaKirim.ToString("n2")}";
+
+            try
+            {
+                var hasil = await SmsService.SendSms(Message, itemObject.PemesanPhone);
+                Console.WriteLine(hasil);
+            }
+            catch { }
+            try
+            {
+                var hasil = await MailService.SendEmail($"Pesanan Baru dari Toko Online Jamaah - No. Order: {selOrder.NoOrder}", Message, itemObject.PemesanEmail, false);
+            }
+            catch
+            {
+
+            }
+            DataOrderDelivery = service.GetLastWeekData();
+            //StateHasChanged();
+        }
+        else
+        {
+            toastService.ShowError("Gagal mengambil order, silakan hubungi admin.", "Perhatian");
+        }
+
+
+
+    }
+    protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (DataOrderDelivery != null && DataOrderDelivery.Count > 0)
+        {
+
+            await jsRuntime.InvokeAsync<object>("TestDataTablesAdd", "#gridData");
+        }
+    }
+    private async System.Threading.Tasks.Task applyPager(string TableName)
+    {
+        await jsRuntime.InvokeAsync<object>("applyPager", TableName);
+    }
+}

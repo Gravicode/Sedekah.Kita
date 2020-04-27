@@ -1,0 +1,107 @@
+﻿@using SedekahKita.Web.Models
+@using SedekahKita.Web.Data
+@inject IJSRuntime jsRuntime
+@namespace SedekahKita.Web.Pages.Transaction
+@using SedekahKita.Web.Helpers
+@using System.IO
+@inject IToastService toastService
+
+<div class="modal" tabindex="-1" role="dialog" id="taskModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@CustomHeader</h5>
+
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@TaskObject" OnValidSubmit="@HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="form-group">
+                        Tanggal Delivery : @TaskObject.TanggalDelivery.ToString("dd/MMM/yyyy HH:mm")
+                        <input type="hidden" @bind-value="@TaskObject.Id" />
+                    </div>
+                    <div class="form-group">
+                        Pemesan : @TaskObject.Pemesan
+                    </div>
+                    <div class="form-group">
+                        Alamat Pemesan : @TaskObject.PemesanAlamat
+                    </div>
+                    <div class="form-group">
+                        HP Pemesan : @TaskObject.PemesanPhone
+                    </div>
+                    <div class="form-group">
+                        Penerima : @TaskObject.Penerima
+                    </div>
+                    <div class="form-group">
+                        Alamat Penerima : @TaskObject.PenerimaAlamat
+                    </div>
+                    <div class="form-group">
+                        HP Penerima : @TaskObject.PenerimaPhone
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="satuan" class="form-control"
+                                     @bind="TaskObject.Status">
+                            <option value="-1">Pilih</option>
+                            <option value="Mengambil">Mengambil Paket</option>
+                            <option value="Mengirim">Mengirim Paket</option>
+                            <option value="Diterima">Paket Diterima</option>
+                            <option value="Batal">Paket Batal Dikirim</option>
+                        </select>
+                        <ValidationMessage For="@(() => TaskObject.Status)" />
+                    </div>
+
+
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </EditForm>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+   
+    [Parameter]
+    public RenderFragment CustomHeader { get; set; }
+    [Parameter]
+    public OrderDelivery TaskObject { get; set; }
+    [Parameter]
+    public Action DataChanged { get; set; }
+    SedekahKita.Web.Data.OrderDeliveryService service;
+    protected override async Task OnInitializedAsync()
+    {
+        if (service == null) service = new OrderDeliveryService();
+    }
+    private async void HandleValidSubmit()
+    {
+
+       
+        if (TaskObject.Id == 0)
+        {
+           //no add new item
+        }
+        else
+        {
+            service.UpdateData(TaskObject);
+        }
+
+        await CloseTaskModal();
+        DataChanged?.Invoke();
+    }
+
+   
+
+    private async Task CloseTaskModal()
+    {
+        await jsRuntime.InvokeAsync<object>("CloseModal", "taskModal");
+    }
+
+
+}

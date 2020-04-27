@@ -1,0 +1,113 @@
+﻿@namespace SedekahKita.Web.Pages.Master
+@page "/master/user-profile"
+@using SedekahKita.Web.Models
+@using SedekahKita.Web.Data
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavMgr
+@inject IToastService toastService
+
+@using SedekahKita.Web.Pages.Common
+
+<h3>Profil Saya</h3>
+<p>Silakan gunakan form ini jika ada perubahan data pribadi.</p>
+<hr>
+<div>
+    <div class="form-group">
+        <label for="fullname"><b>Nama Lengkap</b></label>
+        <input @bind="DataUser.FullName" type="text" class="form-control" placeholder="Masukan Nama Lengkap" name="fullname">
+    </div>
+    <div class="form-group">
+        <label for="phone"><b>Telepon</b></label>
+        <input @bind="DataUser.Phone" type="text" class="form-control" placeholder="Masukan No. HP" name="phone">
+    </div>
+    <div class="form-group">
+        <label for="alamat"><b>Alamat</b></label>
+        <input @bind="DataUser.Alamat" class="form-control" type="text" placeholder="Masukan Alamat" name="alamat">
+    </div>
+    <div class="form-group">
+        <label for="psw"><b>Password</b></label>
+        <input @bind="DataUser.Password" class="form-control" type="password" placeholder="Masukan Password" name="psw">
+    </div>
+    <div class="form-group">
+        <label for="psw-repeat"><b>Ulang Password</b></label>
+        <input @bind="RetypePass" type="password" class="form-control" placeholder="Repeat Password" name="psw-repeat">
+    </div>
+
+    <button @onclick="Simpan" class="btn btn-success">Simpan Perubahan</button>
+    <button @onclick="Kembali" class="btn btn-primary">Kembali</button>
+
+</div>
+@code {
+    UserProfile DataUser = new UserProfile();
+    UserProfileService service;
+    string RetypePass;
+    string ErrorMsg = string.Empty;
+    bool RegisterSuccess = false;
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        if (service == null) service = new UserProfileService();
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            DataUser = service.GetItemByEmail(UserName);
+        }
+
+
+    }
+    void Simpan()
+    {
+        ErrorMsg = "";
+
+
+        if (string.IsNullOrEmpty(DataUser.Password))
+        {
+            ErrorMsg += "Tolong di isi password. ";
+
+        }
+        if (string.IsNullOrEmpty(DataUser.Phone))
+        {
+            ErrorMsg += "Tolong di isi no hp. ";
+
+        }
+        if (string.IsNullOrEmpty(DataUser.FullName))
+        {
+            ErrorMsg += "Tolong di isi nama lengkap. ";
+
+        }
+        if (string.IsNullOrEmpty(DataUser.Alamat))
+        {
+            ErrorMsg += "Tolong di isi alamat. ";
+
+        }
+        if (DataUser.Password != RetypePass)
+        {
+            ErrorMsg += "Password tidak sesuai dengan ulang password. ";
+
+        }
+
+        if (ErrorMsg.Length > 0)
+        {
+            toastService.ShowWarning(ErrorMsg, "Perhatian");
+            return;
+        }
+
+        DataUser.Email = DataUser.Username;
+
+        if (service.UpdateData(DataUser))
+        {
+            toastService.ShowSuccess("Profile Anda sudah berhasil di update. Ajkhr", "Info");
+        }
+    }
+
+    void Kembali()
+    {
+        NavMgr.NavigateTo("/");
+    }
+}

@@ -1,0 +1,74 @@
+﻿@page "/"
+@namespace SedekahKita.Web.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toko Online Jamaah</title>
+    <base href="~/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link href="css/site.css" rel="stylesheet" />
+    <link href="_content/Blazored.Toast/blazored-toast.css" rel="stylesheet" />
+    <script src="/ServiceWorkerRegister.js"></script>
+    <link href="/manifest.json" rel="manifest" />
+    <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" />
+    <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css" />
+
+</head>
+<body>
+    <app>
+        @(await Html.RenderComponentAsync<App>(RenderMode.ServerPrerendered))
+    </app>
+
+    <script src="_framework/blazor.server.js"></script>
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="_content/BlazorInputFile/inputfile.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpqcgMnKf1TnQPRQKNmlnUgqh_EI0t_Iw&v=3"></script>
+    <script src="_content/BlazorGoogleMaps/objectManager.js"></script>
+    <script>
+        function OpenUrl(url) {
+            window.location = url;
+        }
+        function ShowModal(modalId) {
+            $('#' + modalId).modal('show');
+        }
+        function CloseModal(modalId) {
+            $('#' + modalId).modal('hide');
+        }
+        //for grid pager
+        function fixGridView(tableEl) {
+            var jTbl = $(tableEl);
+
+            if (jTbl.find("tbody>tr>th").length > 0) {
+                jTbl.find("tbody").before("<thead><tr></tr></thead>");
+                jTbl.find("thead tr").append(jTbl.find("th"));
+                jTbl.find("tbody tr:first").remove();
+            }
+        }
+        function applyPager(tableName) {
+
+            var tab = $("#" + tableName);
+            if (tab) {
+                $('#' + tableName).DataTable();
+            }
+        }
+        function TestDataTablesAdd(table) {
+            $(document).ready(function () {
+                $(table).DataTable();
+            });
+        }
+
+        function TestDataTablesRemove(table) {
+            $(document).ready(function () {
+                $(table).DataTable().destroy();
+            });
+        }
+    </script>
+</body>
+</html>

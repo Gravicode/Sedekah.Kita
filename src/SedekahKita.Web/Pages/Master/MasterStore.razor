@@ -1,0 +1,150 @@
+﻿@page "/master/store"
+
+@inject IJSRuntime jsRuntime
+@using SedekahKita.Web.Models
+@using SedekahKita.Web.Data
+@inject NavigationManager NavMgr
+@using SedekahKita.Web.Pages.Common
+@namespace SedekahKita.Web.Pages.Master
+<h1>Daftar Toko</h1>
+
+<p>Gunakan halaman ini untuk menambah toko baru atau menambah barang ke dalam toko.</p>
+
+@if (DataStore == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <body onbeforeunload="TestDataTablesRemove('#gridData')">
+        <table id="gridData" name="gridData" class="table">
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Alamat</th>
+                    <th>Owner</th>
+                    <th>Logo</th>
+                    <th>Actions</th>
+                </tr>
+
+            </thead>
+            <tbody>
+                @foreach (var item in DataStore)
+                {
+                    <tr>
+                        <td>@item.Nama</td>
+                        <td>@item.Phone</td>
+                        <td>@item.Email</td>
+                        <td>@item.Alamat</td>
+                        <td>@item.Owner</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.PhotoUrl))
+                            {
+                                <img src="@item.PhotoUrl" width="100" />
+                            }
+                        </td>
+                        <td>
+                            <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
+                            <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+                            <input type="button" class="btn btn-warning" @onclick="(() => TambahBarang(item))" value="Tambah Barang" />
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </body>
+}
+<div>
+    <input type="button" data-toggle="modal" data-target="#taskModal" class="btn btn-primary" value="Tambah Toko" @onclick="(() => InitializeitemObject())" />
+</div>
+<ConfirmDialog OnClick="@Delete" />
+<StoreDetail TaskObject=@itemObject DataChanged="@DataChanged">
+    <CustomHeader>@customHeader</CustomHeader>
+</StoreDetail>
+
+@code {
+
+    SedekahKita.Web.Data.StoreService service;
+    string customHeader = string.Empty;
+    List<Store> DataStore;
+    Store itemObject = new Store();
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (service == null) service = new StoreService();
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            // Perform an action only available to authenticated (signed-in) users.
+            DataStore = service.GetDataByOwner(UserName);
+        }
+
+
+    }
+
+
+    private void InitializeitemObject()
+    {
+        UserProfileService svc = new UserProfileService();
+        itemObject = new Store();
+        itemObject.Owner = UserName;
+        var selItem = svc.GetItemByEmail(UserName);
+        if (selItem != null)
+        {
+            itemObject.Email = UserName;
+            itemObject.Phone = selItem.Phone;
+        }
+
+        //itemObject.Id = -1;
+
+        customHeader = "Tambah Toko";
+    }
+    private async void DataChanged()
+    {
+        DataStore = service.GetDataByOwner(UserName);
+        StateHasChanged();
+    }
+    private void TambahBarang(Store item)
+    {
+        NavMgr.NavigateTo($"/master/product/{item.Id}");
+    }
+    private void PrepareForEdit(Store item)
+    {
+        customHeader = "Ubah Toko";
+        itemObject = item;
+    }
+    private void PrepareForDelete(Store item)
+    {
+        itemObject = item;
+    }
+    private async Task Delete()
+    {
+        var task = service.DeleteData(itemObject.Id);
+        await jsRuntime.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        DataStore = service.GetDataByOwner(UserName);
+        itemObject = new Store() { Id = -1 };
+    }
+    protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (DataStore != null && DataStore.Count > 0)
+        {
+
+            await jsRuntime.InvokeAsync<object>("TestDataTablesAdd", "#gridData");
+        }
+    }
+    private async System.Threading.Tasks.Task applyPager(string TableName)
+    {
+        await jsRuntime.InvokeAsync<object>("applyPager", TableName);
+    }
+
+}

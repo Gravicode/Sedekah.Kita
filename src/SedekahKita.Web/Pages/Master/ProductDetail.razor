@@ -1,0 +1,170 @@
+﻿@using SedekahKita.Web.Models
+@using SedekahKita.Web.Data
+@inject IJSRuntime jsRuntime
+@using SedekahKita.Web.Helpers
+@namespace SedekahKita.Web.Pages.Master
+@using System.IO
+<div class="modal" tabindex="-1" role="dialog" id="taskModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@CustomHeader</h5>
+
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@TaskObject" OnValidSubmit="@HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="form-group">
+                        <label for="nama">Nama</label>
+                        <input type="hidden" @bind-value="@TaskObject.Id" />
+                        <InputText id="nama" class="form-control" @bind-Value="@TaskObject.Nama" />
+                        <ValidationMessage For="@(() => TaskObject.Nama)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="ket">Keterangan</label>
+                        <InputTextArea id="ket" class="form-control" @bind-Value="@TaskObject.Keterangan" />
+                        <ValidationMessage For="@(() => TaskObject.Keterangan)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="harga">Harga (Rp)</label>
+                        <InputNumber id="harga" class="form-control" @bind-Value="@TaskObject.Harga" />
+                        <ValidationMessage For="@(() => TaskObject.Harga)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="satuan">Satuan</label>
+                        <InputSelect id="satuan" class="form-control"
+                                     @bind-Value="TaskObject.Satuan">
+                            <option value="-1">Pilih</option>
+                            <option value="Pcs">Pcs</option>
+                            <option value="Kg">Kg</option>
+                            <option value="Paket">Paket</option>
+                            <option value="Gram">Gram</option>
+                            <option value="Ons">Ons</option>
+                            <option value="Unit">Unit</option>
+                            <option value="Liter">Liter</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => TaskObject.Satuan)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="kategori">Kategori</label>
+                        <InputSelect id="kategori" class="form-control"
+                                     @bind-Value="TaskObject.Kategori">
+                            <option value="-1">Pilih</option>
+                            @foreach (var cat in AppConstants.KategoriBarang)
+                            {
+                                <option value="@cat.Key">@cat.Value</option>
+                            }
+
+                        </InputSelect>
+                        <ValidationMessage For="@(() => TaskObject.Satuan)" />
+                    </div>
+                    <div class="checkbox">
+                        <label><input @bind="TaskObject.Aktif" type="checkbox"> Aktif</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="nim">Upload Gambar Produk (bisa lebih dari 1)</label>
+                        <ul>
+                            @if (FileUrl != null && FileUrl.Count > 0)
+                            {
+                                int counter = 0;
+                                foreach (var item in FileUrl)
+                                {
+                                    <li><img src="@item" alt="produk" width="250" /><button class="btn btn-danger" @onclick="@(()=>HapusImage(counter++))">Hapus</button></li>
+                                }
+                            }
+                        </ul>
+                        <InputFile OnChange="HandleFileSelected" />
+                        <div class="alert alert-warning">pilih gambar dan tunggu sampai gambar muncul</div>
+                    </div>
+
+
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </EditForm>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    ProductPhotoService fotoService;
+    [Parameter]
+    public List<string> FileUrl { get; set; }
+    [Parameter]
+    public RenderFragment CustomHeader { get; set; }
+    [Parameter]
+    public Product TaskObject { get; set; }
+    [Parameter]
+    public Action DataChanged { get; set; }
+    SedekahKita.Web.Data.StoreService storeService;
+    SedekahKita.Web.Data.ProductService service;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (service == null) service = new ProductService();
+        if (fotoService == null) fotoService = new ProductPhotoService();
+         if (storeService == null) storeService = new StoreService();
+    }
+
+    void HapusImage(int idx)
+    {
+        FileUrl.RemoveAt(idx);
+    }
+    private async void HandleValidSubmit()
+    {
+        if (TaskObject.Id == 0)
+        {            
+            var toko = storeService.GetDataById(TaskObject.TokoId);
+            
+            //TaskObject.Id = service.GetLastId();
+            service.InsertData(TaskObject);
+            TaskObject.Store = toko;
+            service.UpdateData(TaskObject);
+        }
+        else
+        {
+            service.UpdateData(TaskObject);
+        }
+        if (FileUrl != null && FileUrl.Count > 0)
+        {
+            fotoService.DeleteDataByProductId(TaskObject.Id);
+            //save to produk foto
+            foreach(var item in FileUrl)
+            {
+                fotoService.InsertData(new ProductPhoto() { PhotoUrl = item, ProductId = TaskObject.Id  });
+            }
+        }
+        await CloseTaskModal();
+        DataChanged?.Invoke();
+    }
+
+    async Task HandleFileSelected(IFileListEntry[] files)
+    {
+        if (FileUrl == null) FileUrl = new List<string>();
+        // var file = files.FirstOrDefault();
+        foreach (var file in files)
+        {
+            // Just load into .NET memory to show it can be done
+            // Alternatively it could be saved to disk, or parsed in memory, or similar
+            var ms = new MemoryStream();
+            await file.Data.CopyToAsync(ms);
+            var bytes = ImageHelper.FixedSize(ms, 400, 400, false);
+            string newName = $"{TaskObject.Id}_{DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss")}_{file.Name}";
+            await AzureBlobHelper.UploadFile(newName, bytes);
+            FileUrl.Add($"https://storagemurahaje.blob.core.windows.net/toko-online/{newName}");
+        }
+    }
+
+    private async Task CloseTaskModal()
+    {
+        await jsRuntime.InvokeAsync<object>("CloseModal", "taskModal");
+    }
+
+
+}

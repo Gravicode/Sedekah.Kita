@@ -1,0 +1,105 @@
+﻿@layout NoAuthLayout
+@page "/auth/login"
+@page "/loginControl"
+@using System.Web;
+
+@using Microsoft.AspNetCore.WebUtilities
+@inject IJSRuntime jsRuntime
+@inject IToastService toastService
+@inject NavigationManager NavMgr
+<AuthorizeView>
+    <Authorized>
+        <b>Hello, @context.User.Identity.Name!</b>
+        <a class="ml-md-auto btn btn-primary"
+           href="/logout?returnUrl=/"
+           target="_top">Logout</a>
+    </Authorized>
+    <NotAuthorized>
+        <h3>Toko Online Jamaah</h3>
+        <b>Assalamualaikum, monggo daftar dulu atau login jika sudah memiliki akun.</b>
+
+        <div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input @bind="@Username" type="email" class="form-control" id="email">
+            </div>
+            <div class="form-group">
+                <label for="pwd">Password:</label>
+                <input @bind="@Password" type="password" @onkeyup="@KeyUp" class="form-control" id="pwd">
+            </div>
+            <div class="checkbox">
+                <label><input type="checkbox"> Ingat saya</label>
+            </div>
+            <button @onclick="LoginNow" class="btn btn-success">Masuk</button>
+            <button class="btn btn-primary" @onclick="DaftarNow">Daftar Baru</button>
+            <hr />
+            <span class="psw">Lupa <a href="/auth/forgot-password">password?</a></span>
+            @if (showError)
+            {
+                <div class="alert alert-warning">
+                    username/password salah atau tidak terdaftar
+                </div>
+            }
+        </div>
+
+
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+        bool showError = false;
+        string Username = "";
+        string Password = "";
+        void KeyUp(KeyboardEventArgs  e)
+        {
+            if (e.Key == "Enter")
+            {
+                LoginNow();
+                //Console.WriteLine(this.Value);
+            }
+        }
+        private string encode(string param)
+        {
+            return HttpUtility.UrlEncode(param);
+        }
+        async Task DaftarNow()
+        {
+            NavMgr.NavigateTo("/auth/register");
+        }
+        async Task LoginNow()
+        {
+            var ErrMsg = "";
+            if (string.IsNullOrEmpty(Username))
+            {
+                ErrMsg += "Tolong isi username.";
+            }
+            if (string.IsNullOrEmpty(Password))
+            {
+                ErrMsg += "Tolong isi password.";
+            }
+            if (ErrMsg.Length > 0)
+            {
+                toastService.ShowError(ErrMsg, "Perhatian");
+            }
+            else
+            {
+                string logUrl = $"/login?paramUsername={encode(Username)}&paramPassword={encode(Password)}";
+                await jsRuntime.InvokeAsync<object>("OpenUrl", logUrl);
+            }
+            //NavMgr.NavigateTo(logUrl);
+        }
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = NavMgr.ToAbsoluteUri(NavMgr.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("result", out var resultString))
+        {
+            var result = bool.Parse(resultString);
+            if (!result)
+            {
+                showError = true;
+                toastService.ShowWarning("username/password salah atau tidak terdaftar", "Perhatian");
+            }
+        }
+    }
+}

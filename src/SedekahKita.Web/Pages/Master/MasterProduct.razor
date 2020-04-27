@@ -1,0 +1,193 @@
+﻿@page "/master/product"
+@page "/master/product/{storeId:int}"
+
+@inject IJSRuntime jsRuntime
+@using SedekahKita.Web.Models
+@using SedekahKita.Web.Data
+@inject NavigationManager NavMgr
+@using SedekahKita.Web.Pages.Common
+@namespace SedekahKita.Web.Pages.Master
+@using System.Linq
+<h1>Daftar Produk Toko @NamaToko</h1>
+
+<p>Gunakan halaman ini untuk menambah barang ke dalam toko.</p>
+
+@if (DataProduct == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <body onbeforeunload="TestDataTablesRemove('#gridData')">
+        <table id="gridData" name="gridData" class="table">
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Kategori</th>
+                    <th>Keterangan</th>
+                    <th>Harga</th>
+                    <th>Satuan</th>
+                    <th>Gambar</th>
+                    <th>Actions</th>
+                </tr>
+
+            </thead>
+            <tbody>
+                @foreach (var item in DataProduct)
+                {
+                    <tr>
+                        <td>@item.Nama</td>
+                        <td>@item.Kategori</td>
+                        <td>@item.Keterangan</td>
+                        <td>Rp. @item.Harga.ToString("n2")</td>
+                        <td>@item.Satuan</td>
+                        <td>
+
+                            @{ var Url = GetPhotoProductById(item.Id);
+                                if (!string.IsNullOrEmpty(Url))
+                                {
+                                    <img src="@Url" alt="produk" width="100" />
+                                }
+                            }
+                        </td>
+                        <td>
+                            <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
+                            <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </body>
+}
+<div>
+    <input type="button" data-toggle="modal" data-target="#taskModal" class="btn btn-primary" value="Tambah Produk" @onclick="(() => InitializeitemObject())" />
+    <button class="btn btn-primary" @onclick="Kembali">Kembali ke Toko</button>
+</div>
+<ConfirmDialog OnClick="@Delete" />
+<ProductDetail @ref="produkDetail" TaskObject=@itemObject DataChanged="@DataChanged">
+    <CustomHeader>@customHeader</CustomHeader>
+</ProductDetail>
+
+@code {
+    ProductDetail produkDetail;
+    [Parameter]
+    public int storeId { get; set; }
+    SedekahKita.Web.Data.ProductService service;
+    string customHeader = string.Empty;
+    List<Product> DataProduct;
+    Product itemObject = new Product();
+    StoreService storeService;
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+    string NamaToko = "";
+    List<ProductPhoto> AllImages;
+    SedekahKita.Web.Data.ProductPhotoService fotoProductService;
+    Store store;
+
+    void Kembali()
+    {
+        NavMgr.NavigateTo("/master/store");
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        if (service == null) service = new ProductService();
+        if (storeService == null) storeService = new StoreService();
+        if (fotoProductService == null) fotoProductService = new ProductPhotoService();
+        //var user = (await authenticationStateTask).User;
+
+        //if (user.Identity.IsAuthenticated)
+        {
+            //UserName = user.Identity.Name;
+            if (storeId > 0)
+            {
+                store = storeService.GetDataById(storeId);
+                if (store != null) NamaToko = store.Nama;
+                // Perform an action only available to authenticated (signed-in) users.
+                DataProduct = service.GetDataByStoreId(storeId);
+                AllImages = fotoProductService.GetAllData();
+            }
+        }
+
+
+    }
+
+    public string GetPhotoProductById(long ProductId)
+    {
+        if (AllImages != null)
+        {
+            var selImage = AllImages.Where(x => x.ProductId == ProductId).FirstOrDefault();
+            if (selImage != null)
+            {
+                return selImage.PhotoUrl;
+            }
+        }
+        return null;
+    }
+
+    private void InitializeitemObject()
+    {
+
+        itemObject = new Product();
+        itemObject.Aktif = true;
+        itemObject.TokoId = storeId;
+        produkDetail.FileUrl = new List<string>();
+        //itemObject.Id = -1;
+
+        customHeader = "Tambah Produk";
+    }
+    private async void DataChanged()
+    {
+        AllImages = fotoProductService.GetAllData();
+        DataProduct = service.GetDataByStoreId(storeId);
+        StateHasChanged();
+    }
+    private void TambahBarang(Product item)
+    {
+        NavMgr.NavigateTo($"/master/product/{item.Id}");
+    }
+    private void PrepareForEdit(Product item)
+    {
+        customHeader = "Ubah Toko";
+        itemObject = item;
+        if (item.Id > 0)
+        {
+            var FileUrl = new List<string>();
+            var datas = fotoProductService.GetDataByProductId(itemObject.Id);
+            foreach (var foto in datas)
+            {
+                FileUrl.Add(foto.PhotoUrl);
+            }
+            produkDetail.FileUrl = FileUrl;
+        }
+    }
+    private void PrepareForDelete(Product item)
+    {
+        itemObject = item;
+    }
+    private async Task Delete()
+    {
+        var task = service.DeleteData(itemObject.Id);
+        await jsRuntime.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        DataProduct = service.GetDataByStoreId(storeId);
+        itemObject = new Product() { Id = -1 };
+    }
+    protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (DataProduct != null && DataProduct.Count > 0)
+        {
+
+            await jsRuntime.InvokeAsync<object>("TestDataTablesAdd", "#gridData");
+        }
+    }
+    private async System.Threading.Tasks.Task applyPager(string TableName)
+    {
+        await jsRuntime.InvokeAsync<object>("applyPager", TableName);
+    }
+
+
+}
