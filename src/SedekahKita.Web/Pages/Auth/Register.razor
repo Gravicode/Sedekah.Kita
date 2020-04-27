@@ -5,6 +5,7 @@
 @page "/auth/register"
 @inject IToastService toastService
 @using SedekahKita.Tools
+@using SedekahKita.Web.Helpers
 @if (RegisterSuccess)
 {
 
@@ -13,8 +14,8 @@
 }
 else
 {
-    <h1>Daftar ke Toko Online (Go-UB)</h1>
-    <p>Assalamualaikum sedulur, monggo di isi data diri dibawah, Ajkhr</p>
+    <h1>Daftar ke Sedekah Kita</h1>
+    <p>Silakan di isi data diri dibawah, terima kasih</p>
     <hr>
     <div>
         <div class="form-group">
@@ -41,7 +42,11 @@ else
             <label for="psw-repeat"><b>Ulang Password</b></label>
             <input @bind="RetypePass" type="password" class="form-control" placeholder="Repeat Password" name="psw-repeat">
         </div>
-
+        <div class="input captcha">
+            <img src="@CaptchaImage" style="padding-right: unset;">
+            <a @onclick="GenerateCaptcha" class="icon reload" title="Reload captcha"></a>
+            <input @bind="TypedCaptcha" type="text" placeholder="Retype captcha" required>
+        </div>
         <button @onclick="DaftarUser" class="btn btn-success">Daftar</button>
         <button @onclick="Kembali" class="btn btn-primary">Kembali ke Login</button>
 
@@ -49,12 +54,25 @@ else
 }
 
 @code {
+    public string CaptchaImage { get; set; }
+    public string Answer { get; set; }
+    public string TypedCaptcha { get; set; }
     UserProfile DataUser = new UserProfile();
     string RetypePass;
     string ErrorMsg = string.Empty;
     bool RegisterSuccess = false;
 
-   async Task  Kembali()
+    void GenerateCaptcha()
+    {
+        Random oRandom = new Random();
+        int iNumber = oRandom.Next(1000, 9999);
+        Answer = iNumber.ToString();
+        var temp = CaptchaGenerator.GetCaptcha(Answer, 158, 70);
+        string base64String = Convert.ToBase64String(temp, 0, temp.Length);
+        CaptchaImage = "data:image/png;base64," + base64String;
+    }
+
+    async Task  Kembali()
     {
         NavMgr.NavigateTo("/auth/login");
     }
@@ -102,6 +120,14 @@ else
             ErrorMsg += "User sudah terdaftar sebelumnya, gunakan email lain. ";
 
         }
+        if (string.IsNullOrEmpty(TypedCaptcha))
+        {
+            ErrorMsg = "Ketik Captcha";
+        }
+        if (Answer != TypedCaptcha)
+        {
+            ErrorMsg = "Captcha tidak valid";
+        }
         if (ErrorMsg.Length > 0)
         {
             toastService.ShowWarning(ErrorMsg, "Perhatian");
@@ -115,5 +141,11 @@ else
             RegisterSuccess = true;
             StateHasChanged();
         }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(CaptchaImage))
+            GenerateCaptcha();
+
     }
 }

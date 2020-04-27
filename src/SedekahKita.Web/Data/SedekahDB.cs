@@ -7,27 +7,24 @@ using System.Threading.Tasks;
 
 namespace SedekahKita.Web.Data
 {
-    public class TokoDB : DbContext
+    public class SedekahDB : DbContext
     {
 
-        public TokoDB()
+        public SedekahDB()
         {
         }
 
-        public TokoDB(DbContextOptions<TokoDB> options)
+        public SedekahDB(DbContextOptions<SedekahDB> options)
             : base(options)
         {
         }
 
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<Role> Roles { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<ProductPhoto> ProductPhotos { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderDetail> OrderDetails { get; set; }
-        public DbSet<Store> Stores { get; set; }
-        public DbSet<Driver> Drivers { get; set; }
-        public DbSet<OrderDelivery> OrderDeliveries { get; set; }
+        public DbSet<Bantuan> Bantuans { get; set; }
+        public DbSet<PenerimaBantuan> PenerimaBantuans { get; set; }
+        public DbSet<DataPhoto> DataPhotos { get; set; }
+      
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

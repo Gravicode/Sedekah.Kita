@@ -7,24 +7,40 @@ using SedekahKita.Web.Models;
 
 namespace SedekahKita.Web.Data
 {
-    public class OrderService : ICrud<Order>
+    public class DataPhotoService : ICrud<DataPhoto>
     {
-        TokoDB db;
-        public OrderService()
+        SedekahDB db;
+        public DataPhotoService()
         {
-            if (db == null) db = new TokoDB();
+            if (db == null) db = new SedekahDB();
             //db.Database.EnsureCreated();
         }
         public bool DeleteData(object Id)
         {
             if (Id is long FID)
             {
-                var data = from x in db.Orders
+                var data = from x in db.DataPhotos
                            where x.Id == FID
                            select x;
                 foreach (var item in data)
                 {
-                    db.Orders.Remove(item);
+                    db.DataPhotos.Remove(item);
+                }
+                db.SaveChanges();
+                return true;
+            }
+            return false;
+        }
+        public bool DeleteDataByPhotoKey(object PhotoKey)
+        {
+            if (PhotoKey is long FID)
+            {
+                var data = (from x in db.DataPhotos
+                           where x.PhotoKey== FID
+                            select x).ToList();
+                foreach (var item in data)
+                {
+                    db.DataPhotos.Remove(item);
                 }
                 db.SaveChanges();
                 return true;
@@ -32,27 +48,31 @@ namespace SedekahKita.Web.Data
             return false;
         }
 
-
-        public List<Order> FindByKeyword(string Keyword)
+        public List<DataPhoto> FindByKeyword(string Keyword)
         {
-            var data = from x in db.Orders
-                       where x.NoOrder.Contains(Keyword) || x.Pemesan.Contains(Keyword) || x.Alamat.Contains(Keyword)
+            return GetAllData();
+        }
+
+        public List<DataPhoto> GetAllData()
+        {
+            var data = from x in db.DataPhotos
                        select x;
             return data.ToList();
         }
 
-        public List<Order> GetAllData()
+        public List<DataPhoto> GetDataByPhotoKey(long PhotoKey)
         {
-            var data = from x in db.Orders
+            var data = from x in db.DataPhotos
+                       where x.PhotoKey == PhotoKey
                        select x;
             return data.ToList();
         }
 
-        public Order GetDataById(object Id)
+        public DataPhoto GetDataById(object Id)
         {
-            if (Id is long FID)
+            if (Id is int FID)
             {
-                var data = from x in db.Orders
+                var data = from x in db.DataPhotos
                            where x.Id == FID
                            select x;
                 return data.FirstOrDefault();
@@ -62,15 +82,15 @@ namespace SedekahKita.Web.Data
 
         public long GetLastId()
         {
-            var lastId = db.Orders.OrderByDescending(x => x.Id).FirstOrDefault();
+            var lastId = db.DataPhotos.OrderByDescending(x => x.Id).FirstOrDefault();
             return lastId.Id + 1;
         }
 
-        public bool InsertData(Order data)
+        public bool InsertData(DataPhoto data)
         {
             try
             {
-                db.Orders.Add(data);
+                db.DataPhotos.Add(data);
                 db.SaveChanges();
                 return true;
             }
@@ -82,24 +102,8 @@ namespace SedekahKita.Web.Data
             }
 
         }
-        public bool CloseOrder(Order Header,List<OrderDetail> Detail)
-        {
-            try
-            {
-                db.Orders.Add(Header);
-                Detail.ForEach(x => {
-                    x.Order = Header;
-                    db.OrderDetails.Add(x);
-                    });
-                db.SaveChanges();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-        public bool UpdateData(Order data)
+
+        public bool UpdateData(DataPhoto data)
         {
             try
             {

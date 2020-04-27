@@ -12,17 +12,27 @@ namespace SedekahKita.Web.Data
         public static int BiayaKirim { get; set; } = 10000;
         public static string BlobConn { get; set; }
 
-        public static Dictionary<string, string> KategoriBarang { get; set; } = new Dictionary<string, string>
+        public static Dictionary<string, string> KategoriPenerima { get; set; } = new Dictionary<string, string>
         {
-            {"Makanan","Makanan"},
-            {"Pakaian","Pakaian"},
-            {"Jasa","Jasa"},
-            {"ATK","ATK"},
-            {"Elektronik","Elektronik"},
-            {"Bahan Pokok","Bahan Pokok"},
-            {"Kosmetik","Kosmetik"},
+            {"Individu","Individu"},
+            {"Keluarga","Keluarga"},
+            {"Panti Asuhan","Panti Asuhan"},
+            {"Tempat Ibadah","Tempat Ibadah"},
+            {"Organisasi","Organisasi"},
+            {"Lainnya","Lainnya"},
+          
+        };
+
+        public static Dictionary<string, string> JenisBantuan { get; set; } = new Dictionary<string, string>
+        {
+            {"Makanan","Makanan/Sembako"},
             {"Obat","Obat"},
-            {"Peralatan Rumah Tangga","Peralatan Rumah Tangga"}
+            {"Uang","Uang"},
+            {"Buku","Buku"},
+            {"Tempat Tinggal","Tempat Tinggal"},
+            {"Pekerjaan","Pekerjaan"},
+            {"Lainnya","Lainnya"},
+
         };
     }
 }

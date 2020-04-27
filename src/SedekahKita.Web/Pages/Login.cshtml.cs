@@ -14,12 +14,12 @@ namespace SedekahKita.Web.Pages
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-        TokoDB db { set; get; }
+        SedekahDB db { set; get; }
         public string ReturnUrl { get; set; }
         public async Task<IActionResult>
             OnGetAsync(string paramUsername, string paramPassword)
         {
-            if (db == null) db = new TokoDB();
+            if (db == null) db = new SedekahDB();
             string returnUrl = Url.Content("~/");
             try
             {

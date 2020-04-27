@@ -27,7 +27,7 @@ namespace SedekahKita.Web.Helpers
             {
                 if (locationService == null)
                     locationService = new GoogleLocationService(Data.AppConstants.GMapApiKey);
-
+                
                 var point = locationService.GetLatLongFromAddress(Address);
 
                 var latitude = point.Latitude;
@@ -38,6 +38,29 @@ namespace SedekahKita.Web.Helpers
             {
 
                 return (0, 0);
+            }
+
+        }
+
+        public static string GetAddressFromLatLon(GeoLocation location)
+        {
+           
+            try
+            {
+                if (locationService == null)
+                    locationService = new GoogleLocationService(Data.AppConstants.GMapApiKey);
+
+                var result = locationService.GetAddressFromLatLang(location.Latitude,location.Longitude);
+
+                if (result != null)
+                    return result.Address;
+                else
+                    return string.Empty;
+            }
+            catch (Exception)
+            {
+
+                return string.Empty;
             }
 
         }
@@ -125,5 +148,255 @@ namespace SedekahKita.Web.Helpers
 
             return inside;
         }
+    }
+    ///-------------------------------------------------------------------------------------------------
+    /// <summary>   A geo tool. </summary>
+    ///
+    /// <remarks>   NSMaps, 5/16/2019. </remarks>
+    ///-------------------------------------------------------------------------------------------------
+
+    public class GeoTool
+    {
+        /// <summary>   The degrees per radians. </summary>
+        static double DEG_PER_RAD = (180.0 / Math.PI);
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   Calculate speed from distance and time diff. </summary>
+        ///
+        /// <remarks>   NSMaps, 5/16/2019. </remarks>
+        ///
+        /// <param name="dist">         Distance in meters. </param>
+        /// <param name="timestamp1">   time 1 in milis. </param>
+        /// <param name="timestamp2">   time 2 in milis. </param>
+        /// <param name="unit">         . </param>
+        ///
+        /// <returns>   The calculated speed. </returns>
+        ///-------------------------------------------------------------------------------------------------
+
+        public static double CalculateSpeed(double dist, long timestamp1, long timestamp2, char unit)
+        {
+
+            var time_s = (timestamp2 - timestamp1) / 1000.0;
+            double speed_mps = dist / time_s;
+            switch (unit)
+            {
+                case 'k':
+                case 'K':
+                    double speed_kph = (speed_mps * 3600.0) / 1000.0;
+                    break;
+                case 'm':
+                case 'M':
+                default:
+                    return speed_mps;
+            }
+            return 0;
+
+        }
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   Return the distance in Km from 2 lat and lon coordinates. </summary>
+        ///
+        /// <remarks>   NSMaps, 5/16/2019. </remarks>
+        ///
+        /// <param name="lat1"> Lat of start point. </param>
+        /// <param name="lon1"> Lon of start point. </param>
+        /// <param name="lat2"> Lat of end point. </param>
+        /// <param name="lon2"> Lon of end point. </param>
+        /// <param name="unit"> K for Km and N for nautical miles. </param>
+        ///
+        /// <returns>   Distance in Km. </returns>
+        ///-------------------------------------------------------------------------------------------------
+
+        public static double Distance(double lat1, double lon1, double lat2, double lon2, char unit)
+        {
+            double theta = lon1 - lon2;
+            double dist = Math.Sin(Deg2rad(lat1)) * Math.Sin(Deg2rad(lat2)) + Math.Cos(Deg2rad(lat1)) * Math.Cos(Deg2rad(lat2)) * Math.Cos(Deg2rad(theta));
+            dist = Math.Acos(dist);
+            dist = Rad2deg(dist);
+            dist = dist * 60 * 1.1515;
+
+            if (unit == 'K' || unit == 'k')  // Kilometers
+            {
+                dist = dist * 1.609344;
+            }
+            else                            // Nautical miles
+            {
+                dist = dist * 0.8684;
+            }
+
+            return (dist);
+        }
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   Returns a range and bearing between 2 lat and long coordinates. </summary>
+        ///
+        /// <remarks>   NSMaps, 5/16/2019. </remarks>
+        ///
+        /// <param name="lat1"> Lat of start point. </param>
+        /// <param name="lon1"> Lon of start point. </param>
+        /// <param name="lat2"> Lat of end point. </param>
+        /// <param name="lon2"> Lon of end point. </param>
+        ///
+        /// <returns>   A Geolocation pair. </returns>
+        ///-------------------------------------------------------------------------------------------------
+
+        public static double GetBearing(double lat1, double lon1, double lat2, double lon2)
+        {
+            var dLon = lon2 - lon1;
+            var y = Math.Sin(dLon) * Math.Cos(lat2);
+            var x = Math.Cos(lat1) * Math.Sin(lat2) - Math.Sin(lat1) * Math.Cos(lat2) * Math.Cos(dLon);
+            return DEG_PER_RAD * Math.Atan2(y, x);
+        }
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   Converts decimal degress to radians. </summary>
+        ///
+        /// <remarks>   NSMaps, 5/16/2019. </remarks>
+        ///
+        /// <param name="deg">  Value to convert. </param>
+        ///
+        /// <returns>   Value in Radians. </returns>
+        ///-------------------------------------------------------------------------------------------------
+
+        public static double Deg2rad(double deg)
+        {
+            return (deg * Math.PI / 180.0);
+        }
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   Converts decimal radians to degrees. </summary>
+        ///
+        /// <remarks>   NSMaps, 5/16/2019. </remarks>
+        ///
+        /// <param name="rad">  Value to convert. </param>
+        ///
+        /// <returns>   Value in Degrees. </returns>
+        ///-------------------------------------------------------------------------------------------------
+
+        public static double Rad2deg(double rad)
+        {
+            return (rad / Math.PI * 180.0);
+        }
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   Returns a position for a known centre point and range and bearing. </summary>
+        ///
+        /// <remarks>   NSMaps, 5/16/2019. </remarks>
+        ///
+        /// <param name="startPoint">               Location from which to range and bearing from. </param>
+        /// <param name="initialBearingRadians">    Bearing in radians. </param>
+        /// <param name="distanceKilometres">       Distane in Km's. </param>
+        ///
+        /// <returns>   Geolocaton pair in degrees. </returns>
+        ///-------------------------------------------------------------------------------------------------
+
+        public static GeoLocation FindPointAtDistanceFrom(GeoLocation startPoint, double initialBearingRadians, double distanceKilometres)
+        {
+            const double radiusEarthKilometres = 6371.01;
+            var distRatio = distanceKilometres / radiusEarthKilometres;
+            var distRatioSine = Math.Sin(distRatio);
+            var distRatioCosine = Math.Cos(distRatio);
+
+            var startLatRad = Deg2rad(startPoint.Latitude);
+            var startLonRad = Deg2rad(startPoint.Longitude);
+
+            var startLatCos = Math.Cos(startLatRad);
+            var startLatSin = Math.Sin(startLatRad);
+
+            var endLatRads = Math.Asin((startLatSin * distRatioCosine) + (startLatCos * distRatioSine * Math.Cos(initialBearingRadians)));
+
+            var endLonRads = startLonRad
+                + Math.Atan2(
+                    Math.Sin(initialBearingRadians) * distRatioSine * startLatCos,
+                    distRatioCosine - startLatSin * Math.Sin(endLatRads));
+
+            return new GeoLocation
+            {
+                Latitude = Rad2deg(endLatRads),
+                Longitude = Rad2deg(endLonRads)
+            };
+        }
+
+       
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   Returns a bearing between the 2 locations (for sonar form) </summary>
+        ///
+        /// <remarks>   NSMaps, 5/16/2019. </remarks>
+        ///
+        /// <param name="a1">   . </param>
+        /// <param name="a2">   . </param>
+        /// <param name="b1">   . </param>
+        /// <param name="b2">   . </param>
+        ///
+        /// <returns>   Bearing value in degrees. </returns>
+        ///-------------------------------------------------------------------------------------------------
+
+        public static double GetBearing2(double a1, double a2, double b1, double b2)
+        {
+            const double TWOPI = 6.2831853071795865;
+            const double RAD2DEG = 57.2957795130823209;
+            //
+            // if (a1 = b1 and a2 = b2) throw an error 
+            //
+            double theta = Math.Atan2(b1 - a1, a2 - b2);
+            if (theta < 0.0)
+                theta += TWOPI;
+            return RAD2DEG * theta;
+        }
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   Gets xy from lat lon. </summary>
+        ///
+        /// <remarks>   NSMaps, 5/16/2019. </remarks>
+        ///
+        /// <param name="Position">     The position. </param>
+        /// <param name="MinCoord">     The minimum coordinate. </param>
+        /// <param name="MaxCoord">     The maximum coordinate. </param>
+        /// <param name="WidthMap">     The width map. </param>
+        /// <param name="HeightMap">    The height map. </param>
+        ///
+        /// <returns>   The xy from lat lon. </returns>
+        ///-------------------------------------------------------------------------------------------------
+
+        public static Point GetXYFromLatLon(GeoLocation Position, GeoLocation MinCoord, GeoLocation MaxCoord, int WidthMap, int HeightMap)
+        {
+            //System.Windows.Point Center, int Heading=-1
+            var newPoint = new Point();
+            newPoint.Y = (int)((Position.Latitude - MinCoord.Latitude) / (MaxCoord.Latitude - MinCoord.Latitude) * HeightMap);
+            newPoint.X = (int)((Position.Longitude - MinCoord.Longitude) / (MaxCoord.Longitude - MinCoord.Longitude) * WidthMap);
+            //if (Heading > 0)
+            {
+                /*
+                //rotate coordinate
+                double dx = item.Coordinate.X * (1f / zoom);
+                double dy = item.Coordinate.Y * (1f / zoom);
+                if (Angle > 0)
+                {
+                    System.Windows.Vector vec = new System.Windows.Vector(dx, dy);
+                    var NewPoint = VectorExtentions.Rotate(new System.Windows.Point(dx, dy), Angle, centerPoint);
+                    dx = NewPoint.X;
+                    dy = NewPoint.Y;
+                }*/
+            }
+            return newPoint;
+        }
+    }
+    public class GeoLocation
+    {
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   Gets or sets the latitude. </summary>
+        ///
+        /// <value> The latitude. </value>
+        ///-------------------------------------------------------------------------------------------------
+
+        public double Latitude { set; get; }
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>   Gets or sets the longitude. </summary>
+        ///
+        /// <value> The longitude. </value>
+        ///-------------------------------------------------------------------------------------------------
+
+        public double Longitude { set; get; }
     }
 }

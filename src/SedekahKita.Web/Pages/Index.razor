@@ -1,7 +1,7 @@
 ﻿@page "/"
 @inject NavigationManager NavMgr
 
-<b>Assalamualaikum, selamat datang Pak/Bu. Silakan dipilih menunya</b>
+<b>Selamat datang Pak/Bu. Silakan dipilih menunya</b>
 
 <table class="table table-hover table-bordered">
     <tr>
@@ -10,20 +10,16 @@
         <th>Action</th>
     </tr>
     <tr>
-        <td>Membuat Toko atau menambahkan barang ke dalam toko.</td>
-        <td><button @onclick="@(()=>BukaUrl("/master/store"))" class="btn btn-info">Buka</button></td>
+        <td>Menambah penerima bantuan.</td>
+        <td><button @onclick="@(()=>BukaUrl("/master/penerima"))" class="btn btn-info">Buka</button></td>
     </tr>
     <tr>
-        <td>Belanja, beli barang-barang dari jamaah.</td>
-        <td><button @onclick="@(()=>BukaUrl("/transaction/gallery"))" class="btn btn-info">Buka</button></td>
+        <td>Mencari penerima bantuan.</td>
+        <td><button @onclick="@(()=>BukaUrl("/transaction/search"))" class="btn btn-info">Buka</button></td>
     </tr>
     <tr>
-        <td>Daftar jadi driver, mengantar barang.</td>
-        <td><button @onclick="@(()=>BukaUrl("/master/driver"))" class="btn btn-info">Buka</button></td>
-    </tr>
-    <tr>
-        <td>Delivery order, ambil order pengiriman barang.</td>
-        <td><button @onclick="@(()=>BukaUrl("/transaction/delivery-order"))" class="btn btn-info">Buka</button></td>
+        <td>Daftar bantuan.</td>
+        <td><button @onclick="@(()=>BukaUrl("/transaction/daftar-bantuan"))" class="btn btn-info">Buka</button></td>
     </tr>
 </table>
 

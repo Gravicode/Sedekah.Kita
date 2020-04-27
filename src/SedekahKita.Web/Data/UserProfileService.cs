@@ -9,11 +9,11 @@ namespace SedekahKita.Web.Data
 {
     public class UserProfileService : ICrud<UserProfile>
     {
-        TokoDB db;
+        SedekahDB db;
         public UserProfileService()
         {
-            if (db == null) db = new TokoDB();
-            //db.Database.EnsureCreated();
+            if (db == null) db = new SedekahDB();
+            db.Database.EnsureCreated();
         }
         public bool DeleteData(object Id)
         {

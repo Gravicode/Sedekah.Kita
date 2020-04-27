@@ -11,6 +11,7 @@ using SedekahKita.Web.Data;
 using SedekahKita.Tools;
 using Blazored.SessionStorage;
 using Blazored.LocalStorage;
+using AspNetMonsters.Blazor.Geolocation;
 
 namespace SedekahKita.Web
 {
@@ -34,8 +35,8 @@ namespace SedekahKita.Web
             services.AddBlazoredLocalStorage();
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
             services.AddBlazoredToast();
+            services.AddSingleton<LocationService>();
             // ******
             // BLAZOR COOKIE Auth Code (begin)
             services.Configure<CookiePolicyOptions>(options =>

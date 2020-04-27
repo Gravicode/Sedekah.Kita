@@ -10,16 +10,6 @@ namespace SedekahKita.Web.Models
     public class Entities
     {
     }
-    public class CartTemp
-    {
-        public Order Header { get; set; }
-        public Dictionary<long,OrderDetail> Detail { get; set; }
-    }
-    public class Cart
-    {
-        public Order Header { get; set; }
-        public List<OrderDetail> Detail { get; set; }
-    }
     public class UserProfile
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -31,161 +21,90 @@ namespace SedekahKita.Web.Models
         public string Phone { get; set; }
         public string Email { get; set; }
         public string Alamat { get; set; }
+        public ICollection<Role> Roles { get; set; }
     }
 
     public class Role
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key, Column(Order = 0)]
+
         public long Id { get; set; }
+
+        public UserProfile UserProfile { set; get; }
         public string RoleName { get; set; }
 
     }
 
-    public class Store
+    public class Bantuan
     {
         [Required, Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Column(Order = 0)]
         public long Id { get; set; }
-        [Required(ErrorMessage = "Nama wajib di isi")]
-        public string Nama { get; set; }
         [Required(ErrorMessage = "Keterangan wajib di isi")]
         public string Keterangan { get; set; }
-        [Required(ErrorMessage = "Alamat wajib di isi")]
-        public string Alamat { get; set; }
-        [Required(ErrorMessage = "No Hp wajib di isi")]
-        public string Phone { get; set; }
-        [Required(ErrorMessage = "Email wajib di isi")]
-        public string Email { get; set; }
-        public string Owner { get; set; }
+        [Required(ErrorMessage = "Jenis wajib di isi")]
+        public string Jenis { get; set; }
+        [Required(ErrorMessage = "Jumlah wajib di isi")]
+        public double Jumlah { get; set; }
+        [Required(ErrorMessage = "Satuan wajib di isi")]
+        public string Satuan { get; set; }
+        [Required(ErrorMessage = "Tanggal terima wajib di isi")]
+        public DateTime TanggalTerima { get; set; }
+        [Required(ErrorMessage = "Tanggal kirim wajib di isi")]
+        public DateTime TanggalKirim { get; set; }
+        [Required(ErrorMessage = "Pengirim wajib di isi")]
+        public string Pengirim { get; set; }
+        [Required(ErrorMessage = "Alamat pengirim wajib di isi")]
+        public string AlamatPengirim { get; set; }
+        [Required(ErrorMessage = "Hp pengirim wajib di isi")]
+        public string HpPengirim { get; set; }
+        public StatusBantuan Status { get; set; }
         public string PhotoUrl { get; set; }
-        public ICollection<Product> Products { get; set; }
+        public string Owner { set; get; }
+        public PenerimaBantuan PenerimaBantuan { set; get; }
+
     }
-    public class Product
+
+    public enum StatusBantuan { Menunggu, Dikirim, Diterima, Batal };
+
+    public class PenerimaBantuan
     {
-        [Required, Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Column(Order = 0)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, Column(Order = 0)]
         public long Id { get; set; }
-        public long TokoId { get; set; }
+
         [Required(ErrorMessage = "Nama wajib di isi")]
         public string Nama { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+
+        [Required(ErrorMessage = "Alamat wajib di isi")]
+        public string Alamat { get; set; }
         [Required(ErrorMessage = "Kategori wajib di isi")]
         public string Kategori { get; set; }
-        [Required(ErrorMessage = "Keterangan wajib di isi")]
-        public string Keterangan { get; set; }
-        [Required(ErrorMessage = "Harga wajib di isi")]
-        public double Harga { get; set; }
-        public string Satuan { get; set; }
-        public double PotonganHarga { get; set; }
-        public string KodePromo { get; set; }
-        public bool Aktif { get; set; }
-        public Store Store { get; set; }
-    }
+        [Required(ErrorMessage = "Jumlah jiwa wajib di isi")]
+        public int JumlahJiwa { get; set; }
 
-    public class Driver
+        [Required(ErrorMessage = "Kondisi di isi")]
+        public int Kondisi { get; set; } // 1 - 10 (baik - buruk)
+        [Required(ErrorMessage = "Status di isi")]
+        public StatusKebutuhan Kebutuhan { get; set; } // 1 - 10 (baik - buruk)
+        [Required(ErrorMessage = "Photo harus di upload")]
+        public string PhotoUrl { get; set; }
+        public bool Aktif { get; set; } = true;
+        public ICollection<Bantuan> Bantuans { get; set; }
+    }
+    public enum StatusKebutuhan { ButuhPangan, ButuhPenghasilan, ButuhTempatTinggal, ButuhPendidikan, ButuhPengobatan };
+
+    public class DataPhoto
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key, Column(Order = 0)]
         public long Id { get; set; }
-        [Required(ErrorMessage = "Username wajib di isi")]
-        public string Username { get; set; }
-        [Required(ErrorMessage = "FullName wajib di isi")]
-        public string FullName { get; set; }
-        [Required(ErrorMessage = "Phone wajib di isi")]
-        public string Phone { get; set; }
-        [Required(ErrorMessage = "Email wajib di isi")]
-        public string Email { get; set; }
-        [Required(ErrorMessage = "Alamat wajib di isi")]
-        public string Alamat { get; set; }
-        [Required(ErrorMessage = "SIM wajib di isi")]
-        public string SIM { get; set; }
-        [Required(ErrorMessage = "KTP wajib di isi")]
-        public string KTP { get; set; }
-        
-        public string PicUrl { get; set; }
-        public bool Aktif { get; set; }
-        public bool IsReceiveNotification { get; set; }
-    }
-
-    public enum StatusDelivery
-    {
-        Menunggu=0, Mengambil, Mengirim, Diterima, Batal
-    }
-    public class OrderDelivery
-    {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key, Column(Order = 0)]
-        public long Id { get; set; }
-        public DateTime TanggalDelivery { get; set; }
-        public long DriverId { get; set; }
-        public string DriverUserName { get; set; }
-        public string DriverFullName { get; set; }
-        public string DriverPhone { get; set; }
-        public string DriverEmail { get; set; }
-        public long OrderId { get; set; }
-        public string Penerima { get; set; }
-        public string PenerimaAlamat { get; set; }
-        public string PenerimaPhone { get; set; }
-        public string PenerimaEmail { get; set; }
-        public string DeskripsiBarang { get; set; }
-        public double BiayaKirim { get; set; }
-        public string Pemesan { get; set; }
-        public string PemesanAlamat { get; set; }
-        public string PemesanPhone { get; set; }
-        public string PemesanEmail { get; set; }
-        public StatusDelivery Status { get; set; }
-
-    }
-    public class ProductPhoto
-    {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key, Column(Order = 0)]
-        public long Id { get; set; }
-        public long ProductId { get; set; }
+        public long PhotoKey { get; set; }
+        public string TableRef { get; set; }
         public string PhotoUrl { get; set; }
     }
 
-    public class Order
-    {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key, Column(Order = 0)]
-        public long Id { get; set; }
-        [Required(ErrorMessage = "Pemesan wajib di isi")]
-        public string Pemesan { get; set; }
-        [Required(ErrorMessage = "NoOrder wajib di isi")]
-        public string NoOrder { get; set; }
-        [Required(ErrorMessage = "Alamat wajib di isi")]
-        public string Alamat { get; set; }
-        public string Email { get; set; }
-        public string NamaPemesan { get; set; }
-        public string Phone { get; set; }
-        public DateTime TanggalOrder { get; set; }
-        public double TotalHarga { get; set; }
-        public double TotalPotonganHarga { get; set; }
-        public ICollection<OrderDetail> OrderDetails { get; set; }
-    }
 
-    public class OrderDetail
-    {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key, Column(Order = 0)]
-        public long Id { get; set; }
-        public Order Order { set; get; }
-        public long TokoId { get; set; }
-        [Required(ErrorMessage = "Nama wajib di isi")]
-        public string Nama { get; set; }
-        [Required(ErrorMessage = "Kategori wajib di isi")]
-        public string Kategori { get; set; }
-        [Required(ErrorMessage = "Keterangan wajib di isi")]
-        public string Keterangan { get; set; }
-        [Required(ErrorMessage = "Harga wajib di isi")]
-        public double Harga { get; set; }
-        public string Satuan { get; set; }
-        public double PotonganHarga { get; set; }
-        public string KodePromo { get; set; }
-        public bool Aktif { get; set; }
-        public long ProductId { set; get; }
-        public int Qty { get; set; }
-        public double TotalHarga { get; set; }
-        public double TotalPotonganHarga { get; set; }
-
-    }
 }

@@ -9,10 +9,10 @@ namespace SedekahKita.Web.Data
 {
     public class RoleService : ICrud<Role>
     {
-        TokoDB db;
+        SedekahDB db;
         public RoleService()
         {
-            if (db == null) db = new TokoDB();
+            if (db == null) db = new SedekahDB();
             //db.Database.EnsureCreated();
         }
         public bool DeleteData(object Id)

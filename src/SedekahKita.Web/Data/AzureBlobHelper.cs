@@ -21,7 +21,7 @@ namespace SedekahKita.Web.Data
                 CloudBlobClient cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
 
                 //create a container CloudBlobContainer 
-                var cloudBlobContainer = cloudBlobClient.GetContainerReference("toko-online");
+                var cloudBlobContainer = cloudBlobClient.GetContainerReference("sedekah-kita");
 
                 //create a container if it is not already exists
 
