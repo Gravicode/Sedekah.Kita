@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SedekahKita.Web.Models;
+using SedekahKita.Web.Data;
 
-namespace SedekahKita.Web.Data
+namespace SedekahKita.Web.Services
 {
-    public class DataPhotoService : ICrud<DataPhoto>
+    public class RoleService : ICrud<Role>
     {
         SedekahDB db;
-        public DataPhotoService()
+        public RoleService()
         {
             if (db == null) db = new SedekahDB();
             //db.Database.EnsureCreated();
@@ -19,28 +20,12 @@ namespace SedekahKita.Web.Data
         {
             if (Id is long FID)
             {
-                var data = from x in db.DataPhotos
+                var data = from x in db.Roles
                            where x.Id == FID
                            select x;
                 foreach (var item in data)
                 {
-                    db.DataPhotos.Remove(item);
-                }
-                db.SaveChanges();
-                return true;
-            }
-            return false;
-        }
-        public bool DeleteDataByPhotoKey(object PhotoKey)
-        {
-            if (PhotoKey is long FID)
-            {
-                var data = (from x in db.DataPhotos
-                           where x.PhotoKey== FID
-                            select x).ToList();
-                foreach (var item in data)
-                {
-                    db.DataPhotos.Remove(item);
+                    db.Roles.Remove(item);
                 }
                 db.SaveChanges();
                 return true;
@@ -48,31 +33,27 @@ namespace SedekahKita.Web.Data
             return false;
         }
 
-        public List<DataPhoto> FindByKeyword(string Keyword)
-        {
-            return GetAllData();
-        }
 
-        public List<DataPhoto> GetAllData()
+        public List<Role> FindByKeyword(string Keyword)
         {
-            var data = from x in db.DataPhotos
+            var data = from x in db.Roles
+                       where x.RoleName.Contains(Keyword) 
                        select x;
             return data.ToList();
         }
 
-        public List<DataPhoto> GetDataByPhotoKey(long PhotoKey)
+        public List<Role> GetAllData()
         {
-            var data = from x in db.DataPhotos
-                       where x.PhotoKey == PhotoKey
+            var data = from x in db.Roles
                        select x;
             return data.ToList();
         }
 
-        public DataPhoto GetDataById(object Id)
+        public Role GetDataById(object Id)
         {
             if (Id is int FID)
             {
-                var data = from x in db.DataPhotos
+                var data = from x in db.Roles
                            where x.Id == FID
                            select x;
                 return data.FirstOrDefault();
@@ -82,15 +63,15 @@ namespace SedekahKita.Web.Data
 
         public long GetLastId()
         {
-            var lastId = db.DataPhotos.OrderByDescending(x => x.Id).FirstOrDefault();
+            var lastId = db.Roles.OrderByDescending(x => x.Id).FirstOrDefault();
             return lastId.Id + 1;
         }
 
-        public bool InsertData(DataPhoto data)
+        public bool InsertData(Role data)
         {
             try
             {
-                db.DataPhotos.Add(data);
+                db.Roles.Add(data);
                 db.SaveChanges();
                 return true;
             }
@@ -103,7 +84,7 @@ namespace SedekahKita.Web.Data
 
         }
 
-        public bool UpdateData(DataPhoto data)
+        public bool UpdateData(Role data)
         {
             try
             {

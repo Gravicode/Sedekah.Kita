@@ -1,8 +1,8 @@
 ﻿@layout NoAuthLayout
-@using SedekahKita.Web.Models
-@using SedekahKita.Web.Data
-@inject NavigationManager NavMgr
 @page "/auth/register"
+@using SedekahKita.Web.Models
+@using SedekahKita.Web.Services
+@inject NavigationManager NavMgr
 @inject IToastService toastService
 @using SedekahKita.Tools
 @using SedekahKita.Web.Helpers
@@ -72,7 +72,7 @@ else
         CaptchaImage = "data:image/png;base64," + base64String;
     }
 
-    async Task  Kembali()
+    async Task Kembali()
     {
         NavMgr.NavigateTo("/auth/login");
     }

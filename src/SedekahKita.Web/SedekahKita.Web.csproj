@@ -9,7 +9,6 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="AspNetMonsters.Blazor.Geolocation" Version="0.4.0.1017" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.8" />
 
 		<PackageReference Include="GoogleMaps.LocationServices" Version="1.2.0.2" />

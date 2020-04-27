@@ -1,8 +1,7 @@
 ﻿@layout NoAuthLayout
 @page "/auth/login"
-@page "/loginControl"
-@using System.Web;
 
+@using System.Web;
 @using Microsoft.AspNetCore.WebUtilities
 @inject IJSRuntime jsRuntime
 @inject IToastService toastService
@@ -48,47 +47,47 @@
 
 
 @code {
-        bool showError = false;
-        string Username = "";
-        string Password = "";
-        void KeyUp(KeyboardEventArgs  e)
+    bool showError = false;
+    string Username = "";
+    string Password = "";
+    void KeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
         {
-            if (e.Key == "Enter")
-            {
-                LoginNow();
-                //Console.WriteLine(this.Value);
-            }
+            LoginNow();
+            //Console.WriteLine(this.Value);
         }
-        private string encode(string param)
+    }
+    private string encode(string param)
+    {
+        return HttpUtility.UrlEncode(param);
+    }
+    async Task DaftarNow()
+    {
+        NavMgr.NavigateTo("/auth/register");
+    }
+    async Task LoginNow()
+    {
+        var ErrMsg = "";
+        if (string.IsNullOrEmpty(Username))
         {
-            return HttpUtility.UrlEncode(param);
+            ErrMsg += "Tolong isi username.";
         }
-        async Task DaftarNow()
+        if (string.IsNullOrEmpty(Password))
         {
-            NavMgr.NavigateTo("/auth/register");
+            ErrMsg += "Tolong isi password.";
         }
-        async Task LoginNow()
+        if (ErrMsg.Length > 0)
         {
-            var ErrMsg = "";
-            if (string.IsNullOrEmpty(Username))
-            {
-                ErrMsg += "Tolong isi username.";
-            }
-            if (string.IsNullOrEmpty(Password))
-            {
-                ErrMsg += "Tolong isi password.";
-            }
-            if (ErrMsg.Length > 0)
-            {
-                toastService.ShowError(ErrMsg, "Perhatian");
-            }
-            else
-            {
-                string logUrl = $"/login?paramUsername={encode(Username)}&paramPassword={encode(Password)}";
-                await jsRuntime.InvokeAsync<object>("OpenUrl", logUrl);
-            }
-            //NavMgr.NavigateTo(logUrl);
+            toastService.ShowError(ErrMsg, "Perhatian");
         }
+        else
+        {
+            string logUrl = $"/login?paramUsername={encode(Username)}&paramPassword={encode(Password)}";
+            await jsRuntime.InvokeAsync<object>("OpenUrl", logUrl);
+        }
+        //NavMgr.NavigateTo(logUrl);
+    }
     protected override async Task OnInitializedAsync()
     {
         var uri = NavMgr.ToAbsoluteUri(NavMgr.Uri);

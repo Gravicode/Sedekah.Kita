@@ -1,12 +1,13 @@
 ﻿using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
+using SedekahKita.Web.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SedekahKita.Web.Data
+namespace SedekahKita.Web.Helpers
 {
     public class AzureBlobHelper
     {

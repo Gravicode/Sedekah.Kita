@@ -9,7 +9,7 @@ namespace SedekahKita.Web.Data
     {
         public static string SQLConn { get; set; }
         public static string GMapApiKey { get; set; }
-        public static int BiayaKirim { get; set; } = 10000;
+        
         public static string BlobConn { get; set; }
 
         public static Dictionary<string, string> KategoriPenerima { get; set; } = new Dictionary<string, string>

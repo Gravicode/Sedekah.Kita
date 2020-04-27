@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SedekahKita.Web.Models;
+using SedekahKita.Web.Data;
 
-namespace SedekahKita.Web.Data
+namespace SedekahKita.Web.Services
 {
     public class UserProfileService : ICrud<UserProfile>
     {

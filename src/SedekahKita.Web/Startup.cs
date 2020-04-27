@@ -11,7 +11,6 @@ using SedekahKita.Web.Data;
 using SedekahKita.Tools;
 using Blazored.SessionStorage;
 using Blazored.LocalStorage;
-using AspNetMonsters.Blazor.Geolocation;
 
 namespace SedekahKita.Web
 {
@@ -36,7 +35,7 @@ namespace SedekahKita.Web
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddBlazoredToast();
-            services.AddSingleton<LocationService>();
+            
             // ******
             // BLAZOR COOKIE Auth Code (begin)
             services.Configure<CookiePolicyOptions>(options =>
@@ -65,7 +64,7 @@ namespace SedekahKita.Web
             MailService.MailPort = int.Parse(Configuration["MailSettings:MailPort"]);
             SmsService.UserKey = Configuration["SmsSettings:ZenzivaUserKey"];
             SmsService.PassKey = Configuration["SmsSettings:ZenzivaPassKey"];
-            AppConstants.BiayaKirim = int.Parse(Configuration["App:BiayaKirim"]);
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

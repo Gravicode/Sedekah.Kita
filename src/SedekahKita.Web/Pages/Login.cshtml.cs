@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using SedekahKita.Web.Data;
+using SedekahKita.Web.Services;
 using System.Linq;
 namespace SedekahKita.Web.Pages
 {
