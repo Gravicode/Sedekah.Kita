@@ -28,7 +28,7 @@ else
                     <th>Alamat</th>
                     <th>Jml Jiwa</th>
                     <th>Kategori</th>
-                    <th>Kondisi (1-5/baik-buruk)</th>
+                    <th>Kondisi</th>
                     <th>Foto</th>
                     <th>Actions</th>
                 </tr>
@@ -45,7 +45,7 @@ else
                             <td>@item.Alamat</td>
                             <td>@item.JumlahJiwa jiwa</td>
                             <td>@item.Kategori.ToString()</td>
-                            <td>@item.Kondisi</td>
+                            <td>@item.Kondisi (@(AppConstants.KondisiInDesc(item.Kondisi)))</td>
                             <td>
                                 @if (!string.IsNullOrEmpty(item.PhotoUrl))
                                 {

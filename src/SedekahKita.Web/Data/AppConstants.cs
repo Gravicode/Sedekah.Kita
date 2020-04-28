@@ -12,6 +12,29 @@ namespace SedekahKita.Web.Data
         
         public static string BlobConn { get; set; }
 
+        public static string KondisiInDesc(int kondisi)
+        {
+            switch (kondisi)
+            {
+                case int n when (n < 3 ):
+                    return ($"cukup");
+                    //break;
+
+                case int n when (n >=3 && n <= 6):
+                    return ($"sedang");
+                    //break;
+
+                case int n when (n >=7 && n <= 8):
+                    return ($"buruk");
+                    //break;
+
+                case int n when (n > 8):
+                    return ($"sangat buruk");
+                    //break;
+            }
+            return "";
+            
+        }
         public static Dictionary<string, string> KategoriPenerima { get; set; } = new Dictionary<string, string>
         {
             {"Individu","Individu"},
