@@ -19,7 +19,8 @@
 else
 {
     <body onbeforeunload="TestDataTablesRemove('#gridData')">
-        <table id="gridData" name="gridData" class="table">
+        <div class="table-responsive">
+        <table id="gridData" name="gridData" class="table table-striped">
             <thead>
                 <tr>
                     <th>Nama</th>
@@ -71,6 +72,7 @@ else
                 }
             </tbody>
         </table>
+        </div>
     </body>
 }
 

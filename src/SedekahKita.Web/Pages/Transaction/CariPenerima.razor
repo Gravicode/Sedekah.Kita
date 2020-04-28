@@ -40,47 +40,49 @@ else
 {
     <hr />
     <body onbeforeunload="TestDataTablesRemove('#gridData')">
-        <table id="gridData" name="gridData" class="table">
-            <thead>
-                <tr>
-                    <th>Nama</th>
-                    <th>Alamat</th>
-                    <th>Jml Jiwa</th>
-                    <th>Kategori</th>
-                    <th>Kebutuhan</th>
-                    <th>Kondisi</th>
-                    <th>Jarak</th>
-                    <th>Actions</th>
-                </tr>
+        <div class="table-responsive">
+            <table id="gridData" name="gridData" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Alamat</th>
+                        <th>Jml Jiwa</th>
+                        <th>Kategori</th>
+                        <th>Kebutuhan</th>
+                        <th>Kondisi</th>
+                        <th>Jarak</th>
+                        <th>Actions</th>
+                    </tr>
 
-            </thead>
-            <tbody>
-                @foreach (var item in DataPenerimaBantuan)
-                {
-                    if (item.Aktif)
+                </thead>
+                <tbody>
+                    @foreach (var item in DataPenerimaBantuan)
                     {
-                        <tr>
-                            <td>@item.Nama</td>
-                            <td>@item.Alamat</td>
-                            <td>@item.JumlahJiwa jiwa</td>
-                            <td>@item.Kategori.ToString()</td>
-                            <td>@(AppConstants.JenisKebutuhan[item.Kebutuhan.ToString()])</td>
-                            <td>@item.Kondisi</td>
-                            <td>
-                                @item.Distance km
-                            </td>
-                            <td>
-                                <input type="button" class="btn btn-primary" @onclick="(() => GetDirections2(currentLocation,new GeoLocation() { Latitude = item.Latitude, Longitude = item.Longitude } ))" value="Rute" />
-                                <input type="button" class="btn btn-primary" @onclick="(() => PrepareForView(item))" data-toggle="modal" data-target="#modalBantuan" value="Bantuan" />
-                                @*<input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
+                        if (item.Aktif)
+                        {
+                            <tr>
+                                <td>@item.Nama</td>
+                                <td>@item.Alamat</td>
+                                <td>@item.JumlahJiwa jiwa</td>
+                                <td>@item.Kategori.ToString()</td>
+                                <td>@(AppConstants.JenisKebutuhan[item.Kebutuhan.ToString()])</td>
+                                <td>@item.Kondisi</td>
+                                <td>
+                                    @item.Distance km
+                                </td>
+                                <td>
+                                    <input type="button" class="btn btn-primary" @onclick="(() => GetDirections2(currentLocation,new GeoLocation() { Latitude = item.Latitude, Longitude = item.Longitude } ))" value="Rute" />
+                                    <input type="button" class="btn btn-primary" @onclick="(() => PrepareForView(item))" data-toggle="modal" data-target="#modalBantuan" value="Bantuan" />
+                                    @*<input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
                                     <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />*@
 
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        }
                     }
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </body>
 }
 

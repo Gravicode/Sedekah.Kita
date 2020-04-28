@@ -14,8 +14,10 @@
 }
 else
 {
-    <body onbeforeunload="TestDataTablesRemove('#gridData')">
-        <table id="gridData" name="gridData" class="table">
+<body onbeforeunload="TestDataTablesRemove('#gridData')">
+    <div class="table-responsive">
+
+        <table id="gridData" name="gridData" class="table table-striped">
             <thead>
                 <tr>
                     <th>Penerima</th>
@@ -66,7 +68,8 @@ else
                 }
             </tbody>
         </table>
-    </body>
+    </div>
+</body>
 
 }
 <ConfirmDialog OnClick="@Delete" />
