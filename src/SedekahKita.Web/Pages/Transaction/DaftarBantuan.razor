@@ -177,6 +177,7 @@
             itemObject.HpPengirim = selItem.Phone;
             itemObject.AlamatPengirim = selItem.Alamat;
             itemObject.TanggalKirim = DateHelper.GetLocalTimeNow();
+            bd.FileUrl = "";
             //itemObject.PenerimaBantuan = TaskObject;
             bd.parent = TaskObject;
         }
@@ -195,6 +196,7 @@
     {
         customHeader = "Ubah Bantuan";
         itemObject = item;
+        bd.FileUrl = item.PhotoUrl;
     }
     private void PrepareForDelete(Bantuan item)
     {

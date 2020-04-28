@@ -64,7 +64,25 @@ namespace SedekahKita.Web.Models
         public PenerimaBantuan PenerimaBantuan { set; get; }
 
     }
+    public class LaporanPalsu
+    {
+        [Required, Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Column(Order = 0)]
+        public long Id { get; set; }
+        
+        [Required(ErrorMessage = "Isi nama pengirim")]
+        public string Pengirim { get; set; }
 
+        [Required(ErrorMessage = "Keterangan")]
+        public string Keterangan { get; set; }
+
+        [Required(ErrorMessage = "Tanggal di isi")]
+        public DateTime Tanggal { get; set; }
+
+        public string FotoBuktiUrl { get; set; }
+
+        public PenerimaBantuan PenerimaBantuan { set; get; }
+
+    }
     public enum StatusBantuan { Menunggu, Dikirim, Diterima, Batal };
 
     public class PenerimaBantuan
@@ -98,6 +116,7 @@ namespace SedekahKita.Web.Models
         public DateTime CreatedDate { get; set; }
         public bool Aktif { get; set; } = true;
         public ICollection<Bantuan> Bantuans { get; set; }
+        public ICollection<LaporanPalsu> LaporanPalsus { get; set; }
     }
     public enum StatusKebutuhan { ButuhPangan, ButuhPenghasilan, ButuhTempatTinggal, ButuhPendidikan, ButuhPengobatan };
 

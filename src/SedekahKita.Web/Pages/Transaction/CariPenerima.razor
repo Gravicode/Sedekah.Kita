@@ -34,7 +34,7 @@
 }
 else if (DataPenerimaBantuan.Count <= 0)
 {
-    <p><em>Belum ada bantuan untuk penerima ini</em></p>
+    <p><em>Belum ada data penerima bantuan</em></p>
 }
 else
 {
@@ -73,8 +73,9 @@ else
                                 <td>
                                     <input type="button" class="btn btn-primary" @onclick="(() => GetDirections2(currentLocation,new GeoLocation() { Latitude = item.Latitude, Longitude = item.Longitude } ))" value="Rute" />
                                     <input type="button" class="btn btn-primary" @onclick="(() => PrepareForView(item))" data-toggle="modal" data-target="#modalBantuan" value="Bantuan" />
+                                    <input type="button" class="btn btn-danger" @onclick="(() => PrepareForViewLaporan(item))" data-toggle="modal" data-target="#modalLaporanPalsu" value="Lapor" />
                                     @*<input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
-                                    <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />*@
+        <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />*@
 
                                 </td>
                             </tr>
@@ -90,9 +91,13 @@ else
     <CustomHeader>Daftar Bantuan</CustomHeader>
 </DaftarBantuan>
 
+<DaftarLaporanPalsu @ref="dlp" TaskObject=@itemObject>
+    <CustomHeader>Daftar Laporan Palsu</CustomHeader>
+</DaftarLaporanPalsu>
 
 @code {
     DaftarBantuan db;
+    DaftarLaporanPalsu dlp;
 
     int CounterDot = 0;
     Polyline poly;
@@ -140,7 +145,7 @@ else
     private void UpdateLocation(GeoLocation newLocation)
     {
         currentLocation = newLocation;
-       
+
         StateHasChanged();
     }
 
@@ -253,7 +258,12 @@ else
         db.TaskObject = item;
         db.ReloadData();
     }
-
+    private void PrepareForViewLaporan(PenerimaBantuan item)
+    {
+        itemObject = item;
+        dlp.TaskObject = item;
+        dlp.ReloadData();
+    }
     async void KeyUp(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")

@@ -9,7 +9,8 @@ namespace SedekahKita.Web.Data
     {
         public static string SQLConn { get; set; }
         public static string GMapApiKey { get; set; }
-        
+
+        public const int MaxReport = 5;
         public static string BlobConn { get; set; }
 
         public static string KondisiInDesc(int kondisi)

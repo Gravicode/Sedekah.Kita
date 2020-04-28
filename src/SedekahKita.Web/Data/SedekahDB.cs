@@ -24,7 +24,7 @@ namespace SedekahKita.Web.Data
         public DbSet<Bantuan> Bantuans { get; set; }
         public DbSet<PenerimaBantuan> PenerimaBantuans { get; set; }
         public DbSet<DataPhoto> DataPhotos { get; set; }
-      
+        public DbSet<LaporanPalsu> LaporanPalsus { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

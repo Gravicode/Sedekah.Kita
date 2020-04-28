@@ -1,0 +1,202 @@
+﻿
+@inject IJSRuntime jsRuntime
+@using SedekahKita.Web.Models
+@using SedekahKita.Web.Data
+@using SedekahKita.Web.Services
+@using SedekahKita.Web.Helpers
+@inject NavigationManager NavMgr
+@using SedekahKita.Web.Pages.Common
+@namespace SedekahKita.Web.Pages.Master
+
+<div class="modal" tabindex="-1" role="dialog" id="modalLaporanPalsu">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@CustomHeader</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="ex3" style="height:400px;">
+
+                    @if (DataLaporanPalsu == null)
+                    {
+                        <p><em>Loading...</em></p>
+                    }
+                    else
+                    {
+                        <body onbeforeunload="TestDataTablesRemove('#gridData')">
+                            <div class="table-responsive">
+
+                                <table id="gridData" name="gridData" class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Tanggal</th>
+                                            <th>Keterangan</th>
+                                            <th>Foto</th>
+                                            <th>Actions</th>
+                                        </tr>
+
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in DataLaporanPalsu)
+                                        {
+
+                                            <tr>
+                                                <td>@item.Tanggal.ToString("dd/MM/yyyy")</td>
+                                                <td>@item.Keterangan</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(item.FotoBuktiUrl))
+                                                    {
+                                                        <img src="@item.FotoBuktiUrl" width="100" alt="foto" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <p>tidak ada foto</p>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (UserName.ToLower() == item.Pengirim.ToLower())
+                                                    {
+                                                        <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#modalDetailLaporanPalsu" value="Ubah" />
+                                                        <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <p>-</p>
+                                                    }
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </body>
+
+                        <div>
+                            <input type="button" data-toggle="modal" data-target="#modalDetailLaporanPalsu" class="btn btn-primary" value="Tambah LaporanPalsu" @onclick="(() => InitializeitemObject())" />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ConfirmDialog OnClick="@Delete" />
+
+<LaporanPalsuDetail @ref="bd" TaskObject=@itemObject DataChanged="@DataChangedLaporanPalsu">
+    <CustomHeader>@customHeader</CustomHeader>
+</LaporanPalsuDetail>
+
+@code {
+
+    [Parameter]
+    public RenderFragment CustomHeader { get; set; }
+    [Parameter]
+    public PenerimaBantuan TaskObject { get; set; }
+    [Parameter]
+    public Action DataChanged { get; set; }
+    LaporanPalsuDetail bd;
+    LaporanPalsuService service;
+    string customHeader = string.Empty;
+    List<LaporanPalsu> DataLaporanPalsu;
+    LaporanPalsu itemObject = new LaporanPalsu();
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+
+    private async void CloseWindow()
+    {
+        await CloseTaskModal();
+        DataChanged?.Invoke();
+    }
+
+    private async Task CloseTaskModal()
+    {
+        await jsRuntime.InvokeAsync<object>("CloseModal", "modalLaporanPalsu");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (service == null) service = new LaporanPalsuService();
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            // Perform an action only available to authenticated (signed-in) users.
+
+        }
+    }
+
+    public void ReloadData()
+    {
+        if (TaskObject != null)
+        {
+            DataLaporanPalsu = service.GetDataByPenerima(TaskObject);
+            StateHasChanged();
+        }
+
+    }
+
+    protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (DataLaporanPalsu != null && DataLaporanPalsu.Count > 0)
+        {
+
+            await jsRuntime.InvokeAsync<object>("TestDataTablesAdd", "#gridData");
+        }
+    }
+    private async System.Threading.Tasks.Task applyPager(string TableName)
+    {
+        await jsRuntime.InvokeAsync<object>("applyPager", TableName);
+    }
+
+    private void InitializeitemObject()
+    {
+        UserProfileService svc = new UserProfileService();
+        itemObject = new LaporanPalsu();
+
+        var selItem = svc.GetItemByEmail(UserName);
+        if (selItem != null)
+        {
+            itemObject.Pengirim = UserName;
+            itemObject.Tanggal = DateHelper.GetLocalTimeNow();
+            itemObject.FotoBuktiUrl = string.Empty;
+            bd.FileUrl = "";
+            //itemObject.PenerimaLaporanPalsu = TaskObject;
+            bd.parent = TaskObject;
+        }
+
+        //itemObject.Id = -1;
+
+        customHeader = "Data Laporan Palsu";
+    }
+    private async void DataChangedLaporanPalsu()
+    {
+        ReloadData();
+
+    }
+
+    private void PrepareForEdit(LaporanPalsu item)
+    {
+        customHeader = "Ubah Laporan Palsu";
+        itemObject = item;
+        bd.FileUrl = item.FotoBuktiUrl;
+    }
+    private void PrepareForDelete(LaporanPalsu item)
+    {
+        itemObject = item;
+    }
+    private async Task Delete()
+    {
+        var task = service.DeleteData(itemObject.Id);
+        await jsRuntime.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        ReloadData();
+        itemObject = new LaporanPalsu() { Id = -1 };
+    }
+}
