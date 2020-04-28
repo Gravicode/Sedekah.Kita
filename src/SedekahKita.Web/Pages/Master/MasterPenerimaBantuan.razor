@@ -23,6 +23,7 @@ else
             <thead>
                 <tr>
                     <th>Nama</th>
+                    <th>Keterangan</th>
                     <th>Alamat</th>
                     <th>Jml Jiwa</th>
                     <th>Kategori</th>
@@ -39,6 +40,7 @@ else
                     {
                         <tr>
                             <td>@item.Nama</td>
+                            <td>@item.Keterangan</td>
                             <td>@item.Alamat</td>
                             <td>@item.JumlahJiwa jiwa</td>
                             <td>@item.Kategori.ToString()</td>
@@ -46,7 +48,7 @@ else
                             <td>
                                 @if (!string.IsNullOrEmpty(item.PhotoUrl))
                                 {
-                                    <img src="@item.PhotoUrl" alt="foto" />
+                                    <img src="@item.PhotoUrl" height="200" alt="foto" />
                                 }
                                 else
                                 {
@@ -54,10 +56,15 @@ else
                                 }
                             </td>
                             <td>
-
+                                @if (UserName == item.CreatedBy)
+                                {
                                 <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
                                 <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
-
+                                }
+                                else
+                                {
+                                    <p>-</p>
+                                }
                             </td>
                         </tr>
                     }
@@ -68,7 +75,7 @@ else
 }
 
 <div>
-    <input type="button" data-toggle="modal" data-target="#taskModal" class="btn btn-primary" value="Daftar Jadi PenerimaBantuan" @onclick="(() => InitializeitemObject())" />
+    <input type="button" data-toggle="modal" data-target="#taskModal" class="btn btn-primary" value="Tambah Penerima Bantuan" @onclick="(() => InitializeitemObject())" />
 </div>
 <ConfirmDialog OnClick="@Delete" />
 <PenerimaBantuanDetail TaskObject=@itemObject DataChanged="@DataChanged">
@@ -112,9 +119,10 @@ else
         {
             itemObject.CreatedBy = UserName;
             itemObject.CreatedDate = DateHelper.GetLocalTimeNow();
-          
-        
-            
+            itemObject.Kondisi = 1;
+            itemObject.JumlahJiwa = 1;
+
+
         }
 
         //itemObject.Id = -1;

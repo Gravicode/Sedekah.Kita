@@ -148,3 +148,6 @@ app {
         display: block;
     }
 }
+div.ex3 {
+    overflow-y: auto;
+}

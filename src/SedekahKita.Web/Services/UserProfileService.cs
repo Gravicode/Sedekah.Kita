@@ -14,7 +14,7 @@ namespace SedekahKita.Web.Services
         public UserProfileService()
         {
             if (db == null) db = new SedekahDB();
-            //db.Database.EnsureCreated();
+            db.Database.EnsureCreated();
         }
 
         public bool TryLogin(string paramUsername, string paramPassword)

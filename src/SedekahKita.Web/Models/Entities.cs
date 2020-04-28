@@ -77,6 +77,9 @@ namespace SedekahKita.Web.Models
         public string Nama { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
+        public string Keterangan { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
 
         [Required(ErrorMessage = "Alamat wajib di isi")]
         public string Alamat { get; set; }
@@ -89,7 +92,7 @@ namespace SedekahKita.Web.Models
         public int Kondisi { get; set; } // 1 - 10 (baik - buruk)
         [Required(ErrorMessage = "Status di isi")]
         public StatusKebutuhan Kebutuhan { get; set; } // 1 - 10 (baik - buruk)
-        [Required(ErrorMessage = "Photo harus di upload")]
+       
         public string PhotoUrl { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }

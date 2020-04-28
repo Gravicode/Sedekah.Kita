@@ -34,5 +34,16 @@ namespace SedekahKita.Web.Data
             {"Lainnya","Lainnya"},
 
         };
+        public static Dictionary<string, string> JenisKebutuhan { get; set; } = new Dictionary<string, string>
+        {
+            {"ButuhPangan","Butuh Pangan"},
+            {"ButuhPenghasilan","Butuh Penghasilan"},
+            {"ButuhTempatTinggal","Butuh Tempat Tinggal"},
+            {"ButuhPendidikan","Butuh Pendidikan"},
+            {"ButuhPengobatan","Butuh Pengobatan"},
+          
+
+        };
+      
     }
 }
