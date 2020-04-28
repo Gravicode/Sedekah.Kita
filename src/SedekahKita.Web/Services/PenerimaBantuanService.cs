@@ -50,10 +50,11 @@ namespace SedekahKita.Web.Services
             return data.ToList();
         }
         //GetAllDataByLocation
-        public List<PenerimaBantuanExt> GetAllDataByLocation(GeoLocation currentLoc)
+        public List<PenerimaBantuanExt> GetAllDataByLocation(string Keyword, GeoLocation currentLoc)
         {
             var data = (from x in db.PenerimaBantuans
-                       select new PenerimaBantuanExt() { Aktif = x.Aktif, Alamat = x.Alamat, CreatedBy = x.CreatedBy, Bantuans=x.Bantuans,
+                        where (string.IsNullOrEmpty(Keyword) || x.Alamat.Contains(Keyword) || x.Nama.Contains(Keyword) || x.Phone.Contains(Keyword) || x.Keterangan.Contains(Keyword)) && x.Aktif
+                        select new PenerimaBantuanExt() { Aktif = x.Aktif, Alamat = x.Alamat, CreatedBy = x.CreatedBy, Bantuans=x.Bantuans,
                             Distance = (currentLoc==null ? 0 : GeoTool.Distance(currentLoc.Latitude, currentLoc.Longitude, x.Latitude, x.Longitude, 'k')),
                             CreatedDate = x.CreatedDate, Email = x.Email, Id = x.Id , JumlahJiwa=x.JumlahJiwa, Kategori=x.Kategori, Kebutuhan=x.Kebutuhan,
                              Keterangan=x.Keterangan, Kondisi=x.Kondisi, Latitude=x.Latitude, Longitude=x.Longitude, Nama=x.Nama, Phone=x.Phone, PhotoUrl=x.PhotoUrl

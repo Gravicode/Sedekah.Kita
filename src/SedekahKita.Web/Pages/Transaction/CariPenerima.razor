@@ -13,13 +13,28 @@
 <h1>Daftar Penerima Bantuan</h1>
 
 <p>Gunakan halaman ini untuk mencari penerima bantuan.</p>
-
+<div class="mb-2">
+    <div class="form-group">
+        <label for="exampleInputEmail1">Cari</label>
+        <input type="text" class="form-control" @onkeyup="@KeyUp" @bind="Keyword" placeholder="kata kunci pencarian">
+    </div>
+    <div class="checkbox">
+        <label><input @bind="@IsGeofence" type="checkbox"> Geofence</label>
+    </div>
+    <button type="button" class="btn btn-success" @onclick="SetArea">Set Geofence</button>
+    <button type="button" class="btn btn-info" @onclick="ClearArea">Clear Geofence</button>
+    <button type="button" class="btn btn-primary" @onclick="RefreshData">Cari</button>
+</div>
 <GoogleMap @ref="@map1" Id="map1" Options="@mapOptions" Height="600" OnAfterInit="@(async () => await OnAfterInitAsync())"></GoogleMap>
 
 
 @if (DataPenerimaBantuan == null)
 {
     <p><em>Loading...</em></p>
+}
+else if (DataPenerimaBantuan.Count <= 0)
+{
+    <p><em>Belum ada bantuan untuk penerima ini</em></p>
 }
 else
 {
@@ -55,8 +70,8 @@ else
                                 @item.Distance km
                             </td>
                             <td>
-                                <input type="button" class="btn btn-primary" @onclick="(() => GetDirections2(currentLocation,new GeoLocation() { Latitude = item.Latitude, Longitude = item.Longitude } ))"  value="Rute" />
-
+                                <input type="button" class="btn btn-primary" @onclick="(() => GetDirections2(currentLocation,new GeoLocation() { Latitude = item.Latitude, Longitude = item.Longitude } ))" value="Rute" />
+                                <input type="button" class="btn btn-primary" @onclick="(() => PrepareForView(item))" data-toggle="modal" data-target="#modalBantuan" value="Bantuan" />
                                 @*<input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
                                     <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />*@
 
@@ -69,12 +84,24 @@ else
     </body>
 }
 
+<DaftarBantuan @ref="db" TaskObject=@itemObject>
+    <CustomHeader>Daftar Bantuan</CustomHeader>
+</DaftarBantuan>
+
 
 @code {
+    DaftarBantuan db;
+
+    int CounterDot = 0;
+    Polyline poly;
+    Polygon SelectedArea;
+    List<LatLngLiteral> pathList;
+    List<LatLngLiteral> AreaObservation;
     List<Marker> MapMarkers;
     InfoWindow infoWindow;
     Marker MyLocation;
-
+    public string Keyword { get; set; }
+    public bool IsGeofence { get; set; }
     PenerimaBantuanService service;
     string customHeader = string.Empty;
     List<PenerimaBantuanExt> DataPenerimaBantuan;
@@ -132,6 +159,8 @@ else
 
     private async Task OnAfterInitAsync()
     {
+        poly = await Polyline.CreateAsync(jsRuntime);
+        await poly.SetMap(map1.InteropObject);
         //Create instance of DirectionRenderer
         dirRend = await DirectionsRenderer.CreateAsync(map1.JsRuntime, new DirectionsRendererOptions()
         {
@@ -142,12 +171,18 @@ else
         {
             await RefreshData();
         }
-
+        await map1.InteropObject.AddListener<PolyMouseEvent>("click", async (x) =>
+        {
+            if (IsGeofence)
+            {
+                await addLatLng(x);
+            }
+        });
     }
     private async Task GetDirections2(GeoLocation loc1, GeoLocation loc2)
     {
 
-       
+
         if (loc1 != null && loc2 != null)
         {
             //Direction Request
@@ -210,11 +245,100 @@ else
     }
     #endregion
 
+    private void PrepareForView(PenerimaBantuan item)
+    {
+        itemObject = item;
+        db.ReloadData();
+    }
+
+    async void KeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await RefreshData();
+        }
+    }
+    async Task SetArea()
+    {
+        if (pathList != null && pathList.Count > 2)
+        {
+            if (AreaObservation == null)
+                AreaObservation = new List<LatLngLiteral>();
+            else AreaObservation.Clear();
+            foreach (var item in pathList)
+            {
+                AreaObservation.Add(item);
+            }
+            var newPathList = new List<LatLngLiteral>(pathList);
+            newPathList.Add(pathList[0]);
+            await poly.SetPath(newPathList);
+
+            if (SelectedArea == null)
+            {
+                SelectedArea = await Polygon.CreateAsync(jsRuntime);
+                await SelectedArea.SetMap(map1.InteropObject);
+                await SelectedArea.SetOptions(new PolygonOptions() { StrokeColor = "#2ECC71", StrokeOpacity = 0.8f, StrokeWeight = 3, FillColor = "#EAFAF1", FillOpacity = 0.3f });
+            }
+
+            await SelectedArea.SetPath(newPathList);
+            await RefreshData();
+
+            Console.WriteLine("area has been set.");
+        }
+
+    }
+    async Task ClearArea()
+    {
+        if (pathList != null)
+        {
+            pathList.Clear();
+            await poly.SetPath(pathList);
+        }
+        if (SelectedArea != null)
+        {
+            await SelectedArea.SetMap(null);
+            SelectedArea = null;
+        }
+        if (AreaObservation != null)
+        {
+            AreaObservation.Clear();
+            AreaObservation = null;
+            await RefreshData();
+        }
+
+    }
+
+    async Task addLatLng(PolyMouseEvent e)
+    {
+        CounterDot++;
+        if (pathList == null)
+            pathList = new List<LatLngLiteral>();
+        if (AreaObservation != null)
+        {
+            AreaObservation = null;
+            pathList.Clear();
+            if (SelectedArea != null)
+            {
+                await SelectedArea.SetMap(null);
+                SelectedArea = null;
+            }
+        }
+
+        pathList.Add(e.LatLng);
+
+        // Because path is an MVCArray, we can simply append a new coordinate
+        // and it will automatically appear.
+        await poly.SetPath(pathList);
+
+    }
+
     async Task RefreshData()
     {
         if (map1 != null)
         {
-            DataPenerimaBantuan = service.GetAllDataByLocation(currentLocation);
+            var all = service.GetAllDataByLocation(Keyword, currentLocation);
+            var filtered = (IsGeofence && AreaObservation != null ? all.Where(x => Helpers.GeoHelpers.IsPointInPolygon(new LatLngLiteral() { Lat = x.Latitude, Lng = x.Longitude }, AreaObservation)).ToList() : all);
+            DataPenerimaBantuan = filtered;
             if (MapMarkers != null)
             {
                 foreach (var mark in MapMarkers)
@@ -228,7 +352,7 @@ else
                 MapMarkers = new List<Marker>();
             }
 
-            if (MyLocation == null && currentLocation!=null)
+            if (MyLocation == null && currentLocation != null)
             {
                 var marker = await Marker.CreateAsync(jsRuntime);
                 await marker.SetPosition(new LatLngLiteral() { Lat = currentLocation.Latitude, Lng = currentLocation.Longitude });

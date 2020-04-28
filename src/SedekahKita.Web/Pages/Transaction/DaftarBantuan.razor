@@ -1,5 +1,4 @@
-﻿@page "/transaction/daftar-bantuan"
-
+﻿
 @inject IJSRuntime jsRuntime
 @using SedekahKita.Web.Models
 @using SedekahKita.Web.Data
@@ -8,62 +7,103 @@
 @inject NavigationManager NavMgr
 @using SedekahKita.Web.Pages.Common
 @namespace SedekahKita.Web.Pages.Master
-<h1>Daftar Bantuan</h1>
 
-<p>Gunakan halaman ini untuk melihat daftar bantuan.</p>
+<div class="modal" tabindex="-1" role="dialog" id="modalBantuan">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@CustomHeader</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="ex3" style="height:400px;">
 
-@if (DataBantuan == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <body onbeforeunload="TestDataTablesRemove('#gridData')">
-        <table id="gridData" name="gridData" class="table">
-            <thead>
-                <tr>
-                    <th>Penerima</th>
-                    <th>Alamat</th>
-                    <th>Keterangan</th>
-                    <th>Jumlah</th>
-                    <th>Status</th>
-                    <th>Pengirim</th>
-                    <th>Foto</th>
-                </tr>
+                    @if (DataBantuan == null)
+                    {
+                        <p><em>Loading...</em></p>
+                    }
+                    else
+                    {
+                        <body onbeforeunload="TestDataTablesRemove('#gridData')">
+                            <table id="gridData" name="gridData" class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Penerima</th>
+                                        <th>Alamat</th>
+                                        <th>Keterangan</th>
+                                        <th>Jumlah</th>
+                                        <th>Status</th>
+                                        <th>Pengirim</th>
+                                        <th>Foto</th>
+                                        <th>Actions</th>
+                                    </tr>
 
-            </thead>
-            <tbody>
-                @foreach (var item in DataBantuan)
-                {
-                  
-                <tr>
-                    <td>@(item.PenerimaBantuan==null ? "-" : item.PenerimaBantuan.Nama)</td>
-                    <td>@(item.PenerimaBantuan==null ? "-" : item.PenerimaBantuan.Alamat)</td>
-                    <td>@item.Keterangan</td>
-                    <td>@item.Jumlah @item.Satuan</td>
-                    <td>@item.Status.ToString()</td>
-                    <td>@item.Pengirim</td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(item.PhotoUrl))
-                        {
-                            <img src="@item.PhotoUrl" alt="foto" />
-                        }
-                        else
-                        {
-                            <p>tidak ada foto</p>
-                        }
-                    </td>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in DataBantuan)
+                                    {
 
-                </tr>
-                    
-                }
-            </tbody>
-        </table>
-    </body>
-}
+                                        <tr>
+                                            <td>@(item.PenerimaBantuan==null ? "-" : item.PenerimaBantuan.Nama)</td>
+                                            <td>@(item.PenerimaBantuan==null ? "-" : item.PenerimaBantuan.Alamat)</td>
+                                            <td>@item.Keterangan</td>
+                                            <td>@item.Jumlah @item.Satuan</td>
+                                            <td>@item.Status.ToString()</td>
+                                            <td>@item.Pengirim</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(item.PhotoUrl))
+                                                {
+                                                    <img src="@item.PhotoUrl" width="100" alt="foto" />
+                                                }
+                                                else
+                                                {
+                                                    <p>tidak ada foto</p>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (UserName == item.Owner)
+                                                {
+                                                    <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#modalDetailBantuan" value="Ubah" />
+                                                    <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+                                                }
+                                                else
+                                                {
+                                                    <p>-</p>
+                                                }
+                                            </td>
+                                        </tr>
+
+                                    }
+                                </tbody>
+                            </table>
+                        </body>
+
+                        <div>
+                            <input type="button" data-toggle="modal" data-target="#modalDetailBantuan" class="btn btn-primary" value="Tambah Bantuan" @onclick="(() => InitializeitemObject())" />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ConfirmDialog OnClick="@Delete" />
+
+<BantuanDetail @ref="bd" TaskObject=@itemObject DataChanged="@DataChangedBantuan">
+    <CustomHeader>@customHeader</CustomHeader>
+</BantuanDetail>
 
 @code {
 
+    [Parameter]
+    public RenderFragment CustomHeader { get; set; }
+    [Parameter]
+    public PenerimaBantuan TaskObject { get; set; }
+    [Parameter]
+    public Action DataChanged { get; set; }
+    BantuanDetail bd;
     BantuanService service;
     string customHeader = string.Empty;
     List<Bantuan> DataBantuan;
@@ -71,8 +111,17 @@ else
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
     string UserName;
- 
 
+    private async void CloseWindow()
+    {
+        await CloseTaskModal();
+        DataChanged?.Invoke();
+    }
+
+    private async Task CloseTaskModal()
+    {
+        await jsRuntime.InvokeAsync<object>("CloseModal", "modalBantuan");
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,13 +133,19 @@ else
         {
             UserName = user.Identity.Name;
             // Perform an action only available to authenticated (signed-in) users.
-            DataBantuan = service.GetAllData();
+
         }
-
-
     }
 
+    public void ReloadData()
+    {
+        if (TaskObject != null)
+        {
+            DataBantuan = service.GetDataByPenerima(TaskObject);
+            StateHasChanged();
+        }
 
+    }
 
     protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
     {
@@ -104,5 +159,49 @@ else
     private async System.Threading.Tasks.Task applyPager(string TableName)
     {
         await jsRuntime.InvokeAsync<object>("applyPager", TableName);
+    }
+
+    private void InitializeitemObject()
+    {
+        UserProfileService svc = new UserProfileService();
+        itemObject = new Bantuan();
+
+        var selItem = svc.GetItemByEmail(UserName);
+        if (selItem != null)
+        {
+            itemObject.Owner = UserName;
+            itemObject.Pengirim = selItem.FullName;
+            itemObject.HpPengirim = selItem.Phone;
+            itemObject.AlamatPengirim = selItem.Alamat;
+            itemObject.TanggalKirim = DateHelper.GetLocalTimeNow();
+            //itemObject.PenerimaBantuan = TaskObject;
+            bd.parent = TaskObject;
+        }
+
+        //itemObject.Id = -1;
+
+        customHeader = "Data Bantuan";
+    }
+    private async void DataChangedBantuan()
+    {
+        ReloadData();
+
+    }
+
+    private void PrepareForEdit(Bantuan item)
+    {
+        customHeader = "Ubah Bantuan";
+        itemObject = item;
+    }
+    private void PrepareForDelete(Bantuan item)
+    {
+        itemObject = item;
+    }
+    private async Task Delete()
+    {
+        var task = service.DeleteData(itemObject.Id);
+        await jsRuntime.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        ReloadData();
+        itemObject = new Bantuan() { Id = -1 };
     }
 }

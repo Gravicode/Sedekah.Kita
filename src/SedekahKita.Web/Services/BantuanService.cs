@@ -48,8 +48,14 @@ namespace SedekahKita.Web.Services
                        select x;
             return data.ToList();
         }
+        public List<Bantuan> GetDataByPenerima(PenerimaBantuan penerima)
+        {
+            var data = from x in db.Bantuans.Include(c => c.PenerimaBantuan)
+                       where x.PenerimaBantuan.Id == penerima.Id
+                       select x;
+            return data.ToList();
+        }
 
-       
 
         public Bantuan GetDataById(object Id)
         {

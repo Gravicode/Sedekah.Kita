@@ -42,10 +42,13 @@ else
             <label for="psw-repeat"><b>Ulang Password</b></label>
             <input @bind="RetypePass" type="password" class="form-control" placeholder="Repeat Password" name="psw-repeat">
         </div>
-        <div class="input captcha">
-            <img src="@CaptchaImage" style="padding-right: unset;">
-            <a @onclick="GenerateCaptcha" class="icon reload" title="Reload captcha"></a>
-            <input @bind="TypedCaptcha" type="text" placeholder="Retype captcha" required>
+
+        <div class="form-group">
+            <img src="@CaptchaImage"><br/>
+            <a @onclick="GenerateCaptcha" style="cursor:grab;" class="icon reload" title="Reload captcha">Reload captcha</a>            
+        </div>
+        <div class="form-group">
+            <input @bind="TypedCaptcha" class="form-control"  id="captchaid" type="text" placeholder="Retype captcha" required>
         </div>
         <button @onclick="DaftarUser" class="btn btn-success">Daftar</button>
         <button @onclick="Kembali" class="btn btn-primary">Kembali ke Login</button>
