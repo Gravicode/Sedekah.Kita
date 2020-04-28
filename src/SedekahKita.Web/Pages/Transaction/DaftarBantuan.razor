@@ -1,0 +1,106 @@
+﻿@page "/transaction/daftar-bantuan"
+
+@inject IJSRuntime jsRuntime
+@using SedekahKita.Web.Models
+@using SedekahKita.Web.Data
+@using SedekahKita.Web.Services
+@using SedekahKita.Web.Helpers
+@inject NavigationManager NavMgr
+@using SedekahKita.Web.Pages.Common
+@namespace SedekahKita.Web.Pages.Master
+<h1>Daftar Bantuan</h1>
+
+<p>Gunakan halaman ini untuk melihat daftar bantuan.</p>
+
+@if (DataBantuan == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <body onbeforeunload="TestDataTablesRemove('#gridData')">
+        <table id="gridData" name="gridData" class="table">
+            <thead>
+                <tr>
+                    <th>Penerima</th>
+                    <th>Alamat</th>
+                    <th>Keterangan</th>
+                    <th>Jumlah</th>
+                    <th>Status</th>
+                    <th>Pengirim</th>
+                    <th>Foto</th>
+                </tr>
+
+            </thead>
+            <tbody>
+                @foreach (var item in DataBantuan)
+                {
+                  
+                <tr>
+                    <td>@(item.PenerimaBantuan==null ? "-" : item.PenerimaBantuan.Nama)</td>
+                    <td>@(item.PenerimaBantuan==null ? "-" : item.PenerimaBantuan.Alamat)</td>
+                    <td>@item.Keterangan</td>
+                    <td>@item.Jumlah @item.Satuan</td>
+                    <td>@item.Status.ToString()</td>
+                    <td>@item.Pengirim</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.PhotoUrl))
+                        {
+                            <img src="@item.PhotoUrl" alt="foto" />
+                        }
+                        else
+                        {
+                            <p>tidak ada foto</p>
+                        }
+                    </td>
+
+                </tr>
+                    
+                }
+            </tbody>
+        </table>
+    </body>
+}
+
+@code {
+
+    BantuanService service;
+    string customHeader = string.Empty;
+    List<Bantuan> DataBantuan;
+    Bantuan itemObject = new Bantuan();
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (service == null) service = new BantuanService();
+
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            // Perform an action only available to authenticated (signed-in) users.
+            DataBantuan = service.GetAllData();
+        }
+
+
+    }
+
+
+  
+    protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (DataBantuan != null && DataBantuan.Count > 0)
+        {
+
+            await jsRuntime.InvokeAsync<object>("TestDataTablesAdd", "#gridData");
+        }
+    }
+    private async System.Threading.Tasks.Task applyPager(string TableName)
+    {
+        await jsRuntime.InvokeAsync<object>("applyPager", TableName);
+    }
+}

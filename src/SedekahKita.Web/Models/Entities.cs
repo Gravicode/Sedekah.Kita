@@ -91,6 +91,8 @@ namespace SedekahKita.Web.Models
         public StatusKebutuhan Kebutuhan { get; set; } // 1 - 10 (baik - buruk)
         [Required(ErrorMessage = "Photo harus di upload")]
         public string PhotoUrl { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTime CreatedDate { get; set; }
         public bool Aktif { get; set; } = true;
         public ICollection<Bantuan> Bantuans { get; set; }
     }

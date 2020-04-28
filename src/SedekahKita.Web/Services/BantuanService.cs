@@ -44,7 +44,7 @@ namespace SedekahKita.Web.Services
 
         public List<Bantuan> GetAllData()
         {
-            var data = from x in db.Bantuans
+            var data = from x in db.Bantuans.Include(c=>c.PenerimaBantuan)
                        select x;
             return data.ToList();
         }
