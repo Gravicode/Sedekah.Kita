@@ -69,6 +69,23 @@
                 $(table).DataTable().destroy();
             });
         }
+        //gps location
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(showPosition);
+                return "Success";
+            } else {
+                return "Geolocation is not supported by this browser.";
+            }
+        }
+        function showPosition(position) {
+            console.log( "Latitude: " + position.coords.latitude +
+                ", Longitude: " + position.coords.longitude);
+            DotNet.invokeMethodAsync('SedekahKita.Web', 'UpdateLocationCaller', position.coords.latitude, position.coords.longitude);
+        }
+      
+        
+
     </script>
 </body>
 </html>

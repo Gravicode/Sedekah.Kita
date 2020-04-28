@@ -1,5 +1,6 @@
 ﻿@page "/transaction/cari-penerima"
-
+@using GoogleMapsComponents
+@using GoogleMapsComponents.Maps
 @inject IJSRuntime jsRuntime
 @using SedekahKita.Web.Models
 @using SedekahKita.Web.Data
@@ -8,9 +9,13 @@
 @inject NavigationManager NavMgr
 @using SedekahKita.Web.Pages.Common
 @namespace SedekahKita.Web.Pages.Master
+@inject IToastService toastService
 <h1>Daftar Penerima Bantuan</h1>
 
-<p>Gunakan halaman ini untuk mendaftarkan penerima bantuan.</p>
+<p>Gunakan halaman ini untuk mencari penerima bantuan.</p>
+
+<GoogleMap @ref="@map1" Id="map1" Options="@mapOptions" Height="600" OnAfterInit="@(async () => await OnAfterInitAsync())"></GoogleMap>
+
 
 @if (DataPenerimaBantuan == null)
 {
@@ -18,6 +23,7 @@
 }
 else
 {
+    <hr />
     <body onbeforeunload="TestDataTablesRemove('#gridData')">
         <table id="gridData" name="gridData" class="table">
             <thead>
@@ -26,8 +32,9 @@ else
                     <th>Alamat</th>
                     <th>Jml Jiwa</th>
                     <th>Kategori</th>
-                    <th>Kondisi (1-5/baik-buruk)</th>
-                    <th>Foto</th>
+                    <th>Kebutuhan</th>
+                    <th>Kondisi</th>
+                    <th>Jarak</th>
                     <th>Actions</th>
                 </tr>
 
@@ -42,21 +49,16 @@ else
                             <td>@item.Alamat</td>
                             <td>@item.JumlahJiwa jiwa</td>
                             <td>@item.Kategori.ToString()</td>
+                            <td>@(AppConstants.JenisKebutuhan[item.Kebutuhan.ToString()])</td>
                             <td>@item.Kondisi</td>
                             <td>
-                                @if (!string.IsNullOrEmpty(item.PhotoUrl))
-                                {
-                                    <img src="@item.PhotoUrl" height="150" alt="foto" />
-                                }
-                                else
-                                {
-                                    <p>tidak ada foto</p>
-                                }
+                                @item.Distance km
                             </td>
                             <td>
+                                <input type="button" class="btn btn-primary" @onclick="(() => GetDirections2(currentLocation,new GeoLocation() { Latitude = item.Latitude, Longitude = item.Longitude } ))"  value="Rute" />
 
-                                <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
-                                <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+                                @*<input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
+                                    <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />*@
 
                             </td>
                         </tr>
@@ -67,24 +69,212 @@ else
     </body>
 }
 
-<div>
-    <input type="button" data-toggle="modal" data-target="#taskModal" class="btn btn-primary" value="Daftar Jadi PenerimaBantuan" @onclick="(() => InitializeitemObject())" />
-</div>
-<ConfirmDialog OnClick="@Delete" />
-<PenerimaBantuanDetail TaskObject=@itemObject DataChanged="@DataChanged">
-    <CustomHeader>@customHeader</CustomHeader>
-</PenerimaBantuanDetail>
 
 @code {
+    List<Marker> MapMarkers;
+    InfoWindow infoWindow;
+    Marker MyLocation;
 
     PenerimaBantuanService service;
     string customHeader = string.Empty;
-    List<PenerimaBantuan> DataPenerimaBantuan;
+    List<PenerimaBantuanExt> DataPenerimaBantuan;
     PenerimaBantuan itemObject = new PenerimaBantuan();
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
     string UserName;
 
+    #region update location
+    GeoLocation currentLocation;
+    private static Action<GeoLocation> _action;
+
+    protected override void OnInitialized()
+    {
+        _action = UpdateLocation;
+        //map
+        mapOptions = new MapOptions()
+        {
+            Zoom = 13,
+            Center = new LatLngLiteral()
+            {
+                Lat = -6.595038,
+                Lng = 106.816635
+            },
+            MapTypeId = MapTypeId.Roadmap
+        };
+    }
+
+    async Task GetMyLocation()
+    {
+        await jsRuntime.InvokeVoidAsync("getLocation");
+    }
+
+    private void UpdateLocation(GeoLocation newLocation)
+    {
+        currentLocation = newLocation;
+
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public static void UpdateLocationCaller(double lat, double lon)
+    {
+        _action.Invoke(new GeoLocation() { Latitude = lat, Longitude = lon });
+    }
+    #endregion
+
+    #region maps
+    private GoogleMap map1;
+    private MapOptions mapOptions;
+    private DirectionsRenderer dirRend;
+    private string _durationTotalString;
+    private string _distanceTotalString;
+
+
+    private async Task OnAfterInitAsync()
+    {
+        //Create instance of DirectionRenderer
+        dirRend = await DirectionsRenderer.CreateAsync(map1.JsRuntime, new DirectionsRendererOptions()
+        {
+            Map = map1.InteropObject
+        });
+        infoWindow = await InfoWindow.CreateAsync(jsRuntime);
+        if (DataPenerimaBantuan == null)
+        {
+            await RefreshData();
+        }
+
+    }
+    private async Task GetDirections2(GeoLocation loc1, GeoLocation loc2)
+    {
+
+       
+        if (loc1 != null && loc2 != null)
+        {
+            //Direction Request
+            DirectionsRequest dr = new DirectionsRequest();
+            dr.Origin = new LatLngLiteral() { Lat = loc1.Latitude, Lng = loc1.Longitude };
+            dr.Destination = new LatLngLiteral() { Lat = loc2.Latitude, Lng = loc2.Longitude };
+            //dr.Waypoints = waypoints;
+            dr.TravelMode = TravelMode.Driving;
+
+            //Calculate Route
+            var directionsResult = await dirRend.Route(dr);
+
+            if (directionsResult != null)
+            {
+                foreach (var route in directionsResult.Routes.SelectMany(x => x.Legs))
+                {
+                    _durationTotalString += route.Duration.Text;
+                    _distanceTotalString += route.Distance.Text;
+                }
+                toastService.ShowInfo($"Durasi total: {_durationTotalString}, Jarak: {_distanceTotalString}");
+            }
+            else
+            {
+                toastService.ShowError("Rute tidak ditemukan", "Perhatian");
+            }
+        }
+
+    }
+    private async Task GetDirections(string FromAddress, string ToAddress)
+    {
+
+        var FromPos = GeoHelpers.GetLocationFromAddress(FromAddress);
+        var ToPos = GeoHelpers.GetLocationFromAddress(ToAddress);
+        if (FromPos.lat != 0 && ToPos.lat != 0)
+        {
+            //Direction Request
+            DirectionsRequest dr = new DirectionsRequest();
+            dr.Origin = new LatLngLiteral() { Lat = FromPos.lat, Lng = FromPos.lon };
+            dr.Destination = new LatLngLiteral() { Lat = ToPos.lat, Lng = ToPos.lon };
+            //dr.Waypoints = waypoints;
+            dr.TravelMode = TravelMode.Driving;
+
+            //Calculate Route
+            var directionsResult = await dirRend.Route(dr);
+
+            if (directionsResult != null)
+            {
+                foreach (var route in directionsResult.Routes.SelectMany(x => x.Legs))
+                {
+                    _durationTotalString += route.Duration.Text;
+                    _distanceTotalString += route.Distance.Text;
+                }
+            }
+            else
+            {
+                toastService.ShowError("Rute tidak ditemukan", "Perhatian");
+            }
+        }
+
+    }
+    #endregion
+
+    async Task RefreshData()
+    {
+        if (map1 != null)
+        {
+            DataPenerimaBantuan = service.GetAllDataByLocation(currentLocation);
+            if (MapMarkers != null)
+            {
+                foreach (var mark in MapMarkers)
+                {
+                    await mark.SetMap(null);
+                }
+                MapMarkers.Clear();
+            }
+            else
+            {
+                MapMarkers = new List<Marker>();
+            }
+
+            if (MyLocation == null && currentLocation!=null)
+            {
+                var marker = await Marker.CreateAsync(jsRuntime);
+                await marker.SetPosition(new LatLngLiteral() { Lat = currentLocation.Latitude, Lng = currentLocation.Longitude });
+                await marker.SetMap(map1.InteropObject);
+                await marker.AddListener<MouseEvent>("click", async (x) => await showMyInfo(x));
+            }
+
+            foreach (var item in DataPenerimaBantuan)
+            {
+                var marker = await Marker.CreateAsync(jsRuntime);
+                await marker.SetPosition(new LatLngLiteral() { Lat = item.Latitude, Lng = item.Longitude });
+                await marker.SetMap(map1.InteropObject);
+                await marker.AddListener<MouseEvent>("click", async (x) => await showInfo(x, item.Id));
+                MapMarkers.Add(marker);
+            }
+            StateHasChanged();
+        }
+
+    }
+    async Task showMyInfo(MouseEvent e)
+    {
+        var title = $"This is my location<br/>";
+        title += $"Address: {GeoHelpers.GetAddressFromLatLon(currentLocation)}<br/>";
+
+        var contentString = $"{title}";
+        await infoWindow.SetContent(contentString);
+        await infoWindow.SetPosition(e.LatLng);
+        await infoWindow.Open(map1.InteropObject);
+    }
+    async Task showInfo(MouseEvent e, long No)
+    {
+
+        var item = DataPenerimaBantuan.Where(x => x.Id == No).FirstOrDefault();
+        var title = $"Nama : {item.Nama}<br/>";
+        title += $"Keterangan : {item.Keterangan}<br/>";
+        title += $"Alamat: {item.Alamat}<br/>";
+        title += $"Jumlah Jiwa: {item.JumlahJiwa.ToString("N0")} orang<br/>";
+        title += $"Kebutuhan: {AppConstants.JenisKebutuhan[item.Kebutuhan.ToString()]} cases<br/>";
+        title += $"Kondisi: {item.Kondisi}<br/>";
+        title += $"Tanggal Update: {item.CreatedDate.ToShortDateString()}<br/>";
+
+        var contentString = $"{title}";
+        await infoWindow.SetContent(contentString);
+        await infoWindow.SetPosition(e.LatLng);
+        await infoWindow.Open(map1.InteropObject);
+    }
     protected override async Task OnInitializedAsync()
     {
         if (service == null) service = new PenerimaBantuanService();
@@ -95,54 +285,12 @@ else
         {
             UserName = user.Identity.Name;
             // Perform an action only available to authenticated (signed-in) users.
-            DataPenerimaBantuan = service.GetAllData();
-        }
-
-
-    }
-
-
-    private void InitializeitemObject()
-    {
-        UserProfileService svc = new UserProfileService();
-        itemObject = new PenerimaBantuan();
-
-        var selItem = svc.GetItemByEmail(UserName);
-        if (selItem != null)
-        {
-            itemObject.CreatedBy = UserName;
-            itemObject.CreatedDate = DateHelper.GetLocalTimeNow();
-
-
 
         }
 
-        //itemObject.Id = -1;
 
-        customHeader = "Daftar Penerima Bantuan";
-    }
-    private async void DataChanged()
-    {
-        DataPenerimaBantuan = service.GetAllData();
-        StateHasChanged();
     }
 
-    private void PrepareForEdit(PenerimaBantuan item)
-    {
-        customHeader = "Ubah Penerima Bantuan";
-        itemObject = item;
-    }
-    private void PrepareForDelete(PenerimaBantuan item)
-    {
-        itemObject = item;
-    }
-    private async Task Delete()
-    {
-        var task = service.DeleteData(itemObject.Id);
-        await jsRuntime.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
-        DataPenerimaBantuan = service.GetAllData();
-        itemObject = new PenerimaBantuan() { Id = -1 };
-    }
     protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
     {
 
@@ -151,7 +299,13 @@ else
 
             await jsRuntime.InvokeAsync<object>("TestDataTablesAdd", "#gridData");
         }
+        if (firstRender)
+        {
+            //get user location
+            await GetMyLocation();
+        }
     }
+
     private async System.Threading.Tasks.Task applyPager(string TableName)
     {
         await jsRuntime.InvokeAsync<object>("applyPager", TableName);

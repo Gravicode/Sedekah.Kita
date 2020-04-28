@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SedekahKita.Web.Models;
 using SedekahKita.Web.Data;
+using SedekahKita.Web.Helpers;
 
 namespace SedekahKita.Web.Services
 {
@@ -48,7 +49,17 @@ namespace SedekahKita.Web.Services
                        select x;
             return data.ToList();
         }
-
+        //GetAllDataByLocation
+        public List<PenerimaBantuanExt> GetAllDataByLocation(GeoLocation currentLoc)
+        {
+            var data = (from x in db.PenerimaBantuans
+                       select new PenerimaBantuanExt() { Aktif = x.Aktif, Alamat = x.Alamat, CreatedBy = x.CreatedBy, Bantuans=x.Bantuans,
+                            Distance = (currentLoc==null ? 0 : GeoTool.Distance(currentLoc.Latitude, currentLoc.Longitude, x.Latitude, x.Longitude, 'k')),
+                            CreatedDate = x.CreatedDate, Email = x.Email, Id = x.Id , JumlahJiwa=x.JumlahJiwa, Kategori=x.Kategori, Kebutuhan=x.Kebutuhan,
+                             Keterangan=x.Keterangan, Kondisi=x.Kondisi, Latitude=x.Latitude, Longitude=x.Longitude, Nama=x.Nama, Phone=x.Phone, PhotoUrl=x.PhotoUrl
+                       });
+            return data.ToList();
+        }
 
 
         public PenerimaBantuan GetDataById(object Id)

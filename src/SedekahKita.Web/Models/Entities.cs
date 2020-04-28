@@ -111,5 +111,9 @@ namespace SedekahKita.Web.Models
         public string PhotoUrl { get; set; }
     }
 
+    public class PenerimaBantuanExt : PenerimaBantuan
+    {
+        public double Distance { get; set; }
 
+    }
 }
