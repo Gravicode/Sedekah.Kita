@@ -107,7 +107,7 @@ else
     PenerimaBantuanService service;
     string customHeader = string.Empty;
     List<PenerimaBantuanExt> DataPenerimaBantuan;
-    PenerimaBantuan itemObject = new PenerimaBantuan();
+    PenerimaBantuan itemObject;
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
     string UserName;
@@ -140,7 +140,7 @@ else
     private void UpdateLocation(GeoLocation newLocation)
     {
         currentLocation = newLocation;
-
+       
         StateHasChanged();
     }
 
@@ -250,6 +250,7 @@ else
     private void PrepareForView(PenerimaBantuan item)
     {
         itemObject = item;
+        db.TaskObject = item;
         db.ReloadData();
     }
 
@@ -354,13 +355,7 @@ else
                 MapMarkers = new List<Marker>();
             }
 
-            if (MyLocation == null && currentLocation != null)
-            {
-                var marker = await Marker.CreateAsync(jsRuntime);
-                await marker.SetPosition(new LatLngLiteral() { Lat = currentLocation.Latitude, Lng = currentLocation.Longitude });
-                await marker.SetMap(map1.InteropObject);
-                await marker.AddListener<MouseEvent>("click", async (x) => await showMyInfo(x));
-            }
+            await UpdateCurrentLocation();
 
             foreach (var item in DataPenerimaBantuan)
             {
@@ -374,6 +369,27 @@ else
         }
 
     }
+
+    async Task UpdateCurrentLocation()
+    {
+        if (MyLocation == null && currentLocation != null)
+        {
+            var marker = await Marker.CreateAsync(jsRuntime);
+            await marker.SetPosition(new LatLngLiteral() { Lat = currentLocation.Latitude, Lng = currentLocation.Longitude });
+            await marker.SetMap(map1.InteropObject);
+            await marker.AddListener<MouseEvent>("click", async (x) => await showMyInfo(x));
+            MyLocation = marker;
+        }
+        else if (MyLocation != null)
+        {
+            var myloc = await MyLocation.GetPosition();
+            if (myloc.Lat != currentLocation.Latitude && myloc.Lng != currentLocation.Longitude)
+            {
+                await MyLocation.SetPosition(new LatLngLiteral() { Lat = currentLocation.Latitude, Lng = currentLocation.Longitude });
+            }
+        }
+    }
+
     async Task showMyInfo(MouseEvent e)
     {
         var title = $"This is my location<br/>";
@@ -427,8 +443,10 @@ else
         }
         if (firstRender)
         {
+
             //get user location
             await GetMyLocation();
+
         }
     }
 

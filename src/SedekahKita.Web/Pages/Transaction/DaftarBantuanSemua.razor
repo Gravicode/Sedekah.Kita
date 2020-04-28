@@ -53,7 +53,7 @@ else
                             }
                         </td>
                         <td>
-                            @if (UserName == item.Owner)
+                            @if (UserName.ToLower() == item.Owner.ToLower())
                             {
                                 <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#modalDetailBantuan" value="Ubah" />
                                 <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
