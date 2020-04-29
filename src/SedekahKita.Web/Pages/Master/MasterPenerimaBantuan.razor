@@ -148,7 +148,10 @@ else
     }
     private async Task Delete()
     {
-        var task = service.DeleteData(itemObject.Id);
+        //var task = service.DeleteData(itemObject.Id);
+        itemObject.Aktif = false;
+        service.UpdateData(itemObject);
+            
         await jsRuntime.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
         DataPenerimaBantuan = service.GetAllData();
         itemObject = new PenerimaBantuan() { Id = -1 };

@@ -60,7 +60,7 @@
                                                     @if (UserName.ToLower() == item.Pengirim.ToLower())
                                                     {
                                                         <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#modalDetailLaporanPalsu" value="Ubah" />
-                                                        <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+                                                        <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#modalDeleteLaporan" value="Hapus" />
                                                     }
                                                     else
                                                     {
@@ -76,7 +76,7 @@
                         </body>
 
                         <div>
-                            <input type="button" data-toggle="modal" data-target="#modalDetailLaporanPalsu" class="btn btn-primary" value="Tambah LaporanPalsu" @onclick="(() => InitializeitemObject())" />
+                            <input type="button" data-toggle="modal" data-target="#modalDetailLaporanPalsu" class="btn btn-primary" value="Tambah Laporan Palsu" @onclick="(() => InitializeitemObject())" />
                         </div>
                     }
                 </div>
@@ -84,11 +84,11 @@
         </div>
     </div>
 </div>
-<ConfirmDialog OnClick="@Delete" />
 
 <LaporanPalsuDetail @ref="bd" TaskObject=@itemObject DataChanged="@DataChangedLaporanPalsu">
     <CustomHeader>@customHeader</CustomHeader>
 </LaporanPalsuDetail>
+<ConfirmDialog ModalName="modalDeleteLaporan" OnClick="@Delete" />
 
 @code {
 
@@ -195,7 +195,7 @@
     private async Task Delete()
     {
         var task = service.DeleteData(itemObject.Id);
-        await jsRuntime.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        await jsRuntime.InvokeAsync<object>("CloseModal", "modalDeleteLaporan");
         ReloadData();
         itemObject = new LaporanPalsu() { Id = -1 };
     }

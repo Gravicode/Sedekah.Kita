@@ -26,62 +26,62 @@
                     }
                     else
                     {
-                <body onbeforeunload="TestDataTablesRemove('#gridData')">
-                    <div class="table-responsive">
+                        <body onbeforeunload="TestDataTablesRemove('#gridData')">
+                            <div class="table-responsive">
 
-                        <table id="gridData" name="gridData" class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Penerima</th>
-                                    <th>Alamat</th>
-                                    <th>Keterangan</th>
-                                    <th>Jumlah</th>
-                                    <th>Status</th>
-                                    <th>Pengirim</th>
-                                    <th>Foto</th>
-                                    <th>Actions</th>
-                                </tr>
+                                <table id="gridData" name="gridData" class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Penerima</th>
+                                            <th>Alamat</th>
+                                            <th>Keterangan</th>
+                                            <th>Jumlah</th>
+                                            <th>Status</th>
+                                            <th>Pengirim</th>
+                                            <th>Foto</th>
+                                            <th>Actions</th>
+                                        </tr>
 
-                            </thead>
-                            <tbody>
-                                @foreach (var item in DataBantuan)
-                                {
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in DataBantuan)
+                                        {
 
-                                    <tr>
-                                        <td>@(item.PenerimaBantuan==null ? "-" : item.PenerimaBantuan.Nama)</td>
-                                        <td>@(item.PenerimaBantuan==null ? "-" : item.PenerimaBantuan.Alamat)</td>
-                                        <td>@item.Keterangan</td>
-                                        <td>@item.Jumlah @item.Satuan</td>
-                                        <td>@item.Status.ToString()</td>
-                                        <td>@item.Pengirim</td>
-                                        <td>
-                                            @if (!string.IsNullOrEmpty(item.PhotoUrl))
-                                            {
-                                                <img src="@item.PhotoUrl" width="100" alt="foto" />
-                                            }
-                                            else
-                                            {
-                                                <p>tidak ada foto</p>
-                                            }
-                                        </td>
-                                        <td>
-                                            @if (UserName.ToLower() == item.Owner.ToLower())
-                                            {
-                                                <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#modalDetailBantuan" value="Ubah" />
-                                                <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
-                                            }
-                                            else
-                                            {
-                                                <p>-</p>
-                                            }
-                                        </td>
-                                    </tr>
+                                            <tr>
+                                                <td>@(item.PenerimaBantuan==null ? "-" : item.PenerimaBantuan.Nama)</td>
+                                                <td>@(item.PenerimaBantuan==null ? "-" : item.PenerimaBantuan.Alamat)</td>
+                                                <td>@item.Keterangan</td>
+                                                <td>@item.Jumlah @item.Satuan</td>
+                                                <td>@item.Status.ToString()</td>
+                                                <td>@item.Pengirim</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(item.PhotoUrl))
+                                                    {
+                                                        <img src="@item.PhotoUrl" width="100" alt="foto" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <p>tidak ada foto</p>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (UserName.ToLower() == item.Owner.ToLower())
+                                                    {
+                                                        <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#modalDetailBantuan" value="Ubah" />
+                                                        <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <p>-</p>
+                                                    }
+                                                </td>
+                                            </tr>
 
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </body>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </body>
 
                         <div>
                             <input type="button" data-toggle="modal" data-target="#modalDetailBantuan" class="btn btn-primary" value="Tambah Bantuan" @onclick="(() => InitializeitemObject())" />
@@ -92,11 +92,11 @@
         </div>
     </div>
 </div>
-<ConfirmDialog OnClick="@Delete" />
 
 <BantuanDetail @ref="bd" TaskObject=@itemObject DataChanged="@DataChangedBantuan">
     <CustomHeader>@customHeader</CustomHeader>
 </BantuanDetail>
+<ConfirmDialog OnClick="@Delete" />
 
 @code {
 
