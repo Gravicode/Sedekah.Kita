@@ -175,8 +175,8 @@
 
             var ms = new MemoryStream();
             await file.Data.CopyToAsync(ms);
-            var bytes = ImageHelper.FixedSize(ms, 640, 480, false);
-            string newName = $"penerima_{DateTime.Now.ToString("dd_MM_yyyy")}_{TaskObject.Id}{Path.GetExtension(file.Name)}";
+            var bytes = ImageResizer.ResizeImageAndRatio(ms, 640, 480, false);
+            string newName = $"penerima_{DateTime.Now.ToString("dd_MM_yyyy")}_{StringGenerator.RandomString(5)}{Path.GetExtension(file.Name)}";
             await AzureBlobHelper.UploadFile(newName, bytes);
             FileUrl = $"https://storagemurahaje.blob.core.windows.net/sedekah-kita/{newName}";
         }
