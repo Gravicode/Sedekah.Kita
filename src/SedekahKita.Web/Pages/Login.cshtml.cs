@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SedekahKita.Web.Services;
 using System.Linq;
+using SedekahKita.Tools;
+
 namespace SedekahKita.Web.Pages
 {
     [AllowAnonymous]
@@ -31,6 +33,8 @@ namespace SedekahKita.Web.Pages
             catch { }
             bool isAuthenticate = true;
             UserProfileService svc = new UserProfileService();
+            Encryption enc = new Encryption();
+            paramPassword = enc.Encrypt(paramPassword);
             isAuthenticate = svc.TryLogin(paramUsername, paramPassword);
             // In this example we just log the user in
             // (Always log the user in for this demo)

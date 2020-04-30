@@ -144,7 +144,9 @@ else
         }
 
         DataUser.Email = DataUser.Username;
-
+        //enkripsi
+        Encryption enc = new Encryption();
+        DataUser.Password = enc.Encrypt(DataUser.Password);
         if (svc.InsertData(DataUser))
         {
             RegisterSuccess = true;
