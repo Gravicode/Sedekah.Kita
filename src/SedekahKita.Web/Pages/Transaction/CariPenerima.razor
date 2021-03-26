@@ -18,10 +18,13 @@
         <div class="form-group">
             <input type="text" class="textbox" name="filter" @onkeyup="@KeyUp" @bind="Keyword" placeholder="kata kunci pencarian">
         </div>
-        <div class="form-button inline">
-            <div class="checkbox">
-                <label><input @bind="@IsGeofence" type="checkbox"> Geofence</label>
+         <div class="form-group">
+           <div class="checkbox">
+                <label><input @bind="@IsGeofence" type="checkbox">  Set Geofence</label>
             </div>
+        </div>
+        <div class="form-button inline">
+            
             <button class="primary" @onclick="SetArea">TERAPKAN GEOFENCE</button>
             <button class="secondary" @onclick="ClearArea">HAPUS GEOFENCE</button>
             <button class="" @onclick="RefreshData">CARI</button>
