@@ -14,32 +14,64 @@
            target="_top">Logout</a>
     </Authorized>
     <NotAuthorized>
-        <h3>Sedekah Kita</h3>
-        <b>Silakan daftar dulu atau login jika sudah memiliki akun.</b>
-
-        <div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input @bind="@Username" type="email" class="form-control" id="email">
-            </div>
-            <div class="form-group">
-                <label for="pwd">Password:</label>
-                <input @bind="@Password" type="password" @onkeyup="@KeyUp" class="form-control" id="pwd">
-            </div>
-            <div class="checkbox">
-                <label><input type="checkbox"> Ingat saya</label>
-            </div>
-            <button @onclick="LoginNow" class="btn btn-success">Masuk</button>
-            <button class="btn btn-primary" @onclick="DaftarNow">Daftar Baru</button>
-            <hr />
-            <span class="psw">Lupa <a href="/auth/forgot-password">password?</a></span>
-            @if (showError)
-            {
-                <div class="alert alert-warning">
-                    username/password salah atau tidak terdaftar
+        <div class="left">
+            <div class="form-section">
+                <div class="logo">
+                    <img src="assets/img/logo.png" srcset="assets/img/logo.png 1x, assets/img/logo@2x.png 2x" alt="Sedekah Kita">
                 </div>
-            }
+                <div class="form-center">
+                    <div class="form">
+                        <h2>LOGIN KE AKUN ANDA</h2>
+                        <br>
+                        <div class="form-group">
+                            <label>Email Anda</label>
+                            <input type="email" @bind="@Username" name="email">
+                        </div>
+                        <div class="form-group">
+                            <label>Password Anda</label>
+                            <input @bind="@Password" type="password" @onkeyup="@KeyUp" name="password">
+                            <button class="toggle" tabindex="-1"><i class="bi bi-eye"></i><i class="bi bi-eye-slash"></i></button>
+                        </div>
+                        <br>
+                        <div class="flex">
+                            <label class="checkbox">
+                                <input type="checkbox">
+                                <span>Ingat Saya</span>
+                            </label>
+                            <a href="/auth/forgot-password" class="flright">Lupa Password</a>
+                        </div>
+                        <div class="form-button">
+                            <button @onclick="LoginNow" class="primary">LOGIN</button>
+                        </div>
+                        <div class="form-group">
+                            Belum punya akun? <a href="" @onclick:preventDefault @onclick="DaftarNow">Daftar disini</a>
+                        </div>
+                        @if (showError)
+                        {
+                        <div class="alert alert-warning">
+                            username/password salah atau tidak terdaftar
+                        </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
         </div>
+        <div class="right banner-note">
+            <div class="banner-outer">
+                <div class="banner-inner">
+                    <h2>“Sesungguhnya sedekah itu memadamkan panasnya alam kubur bagi pelakunya. Dan sungguh, pada hari Kiamat, seorang mukmin akan bernaung di bawah naungan sedekahnya."</h2>
+                    <div class="banner-footer">
+                        <div class="footnote">Hasan: HR. Ath-Thabrani dalam al-Mu’jamul Kabiir (XVII/286, no. 788) dari ‘Uqbah bin ‘Amir Radhiyallahu anhu. Silsilah al-Ahaadiits ash-Shahiihah (no. 3484).</div>
+                        <img src="assets/img/img02.png" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
 
 
     </NotAuthorized>

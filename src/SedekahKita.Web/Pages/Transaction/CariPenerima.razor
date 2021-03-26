@@ -10,83 +10,101 @@
 @using SedekahKita.Web.Pages.Common
 @namespace SedekahKita.Web.Pages.Master
 @inject IToastService toastService
-<h1>Daftar Penerima Bantuan</h1>
 
-<p>Gunakan halaman ini untuk mencari penerima bantuan.</p>
-<div class="mb-2">
-    <div class="form-group">
-        <label for="exampleInputEmail1">Cari</label>
-        <input type="text" class="form-control" @onkeyup="@KeyUp" @bind="Keyword" placeholder="kata kunci pencarian">
-    </div>
-    <div class="checkbox">
-        <label><input @bind="@IsGeofence" type="checkbox"> Geofence</label>
-    </div>
-    <button type="button" class="btn btn-success" @onclick="SetArea">Set Geofence</button>
-    <button type="button" class="btn btn-info" @onclick="ClearArea">Clear Geofence</button>
-    <button type="button" class="btn btn-primary" @onclick="RefreshData">Cari</button>
-</div>
-<GoogleMap @ref="@map1" Id="map1" Options="@mapOptions" Height="600" OnAfterInit="@(async () => await OnAfterInitAsync())"></GoogleMap>
-
-
-@if (DataPenerimaBantuan == null)
-{
-    <p><em>Loading...</em></p>
-}
-else if (DataPenerimaBantuan.Count <= 0)
-{
-    <p><em>Belum ada data penerima bantuan</em></p>
-}
-else
-{
-    <hr />
-    <body onbeforeunload="TestDataTablesRemove('#gridData')">
-        <div class="table-responsive">
-            <table id="gridData" name="gridData" class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Nama</th>
-                        <th>Alamat</th>
-                        <th>Jml Jiwa</th>
-                        <th>Kategori</th>
-                        <th>Kebutuhan</th>
-                        <th>Kondisi</th>
-                        <th>Jarak</th>
-                        <th>Actions</th>
-                    </tr>
-
-                </thead>
-                <tbody>
-                    @foreach (var item in DataPenerimaBantuan)
-                    {
-                        if (item.Aktif)
-                        {
-                            <tr>
-                                <td>@item.Nama</td>
-                                <td>@item.Alamat</td>
-                                <td>@item.JumlahJiwa jiwa</td>
-                                <td>@item.Kategori.ToString()</td>
-                                <td>@(AppConstants.JenisKebutuhan[item.Kebutuhan.ToString()])</td>
-                                <td>@item.Kondisi (@(AppConstants.KondisiInDesc(item.Kondisi)))</td>
-                                <td>
-                                    @item.Distance km
-                                </td>
-                                <td>
-                                    <input type="button" class="btn btn-primary" @onclick="(() => GetDirections2(currentLocation,new GeoLocation() { Latitude = item.Latitude, Longitude = item.Longitude } ))" value="Rute" />
-                                    <input type="button" class="btn btn-primary" @onclick="(() => PrepareForView(item))" data-toggle="modal" data-target="#modalBantuan" value="Bantuan" />
-                                    <input type="button" class="btn btn-danger" @onclick="(() => PrepareForViewLaporan(item))" data-toggle="modal" data-target="#modalLaporanPalsu" value="Lapor" />
-                                    @*<input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
-        <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />*@
-
-                                </td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
+<div class="page-content clean">
+    <h2>KIRIM BANTUAN</h2>
+    <div class="form">
+        <div class="note">Gunakan halaman ini untuk mencari penerima bantuan.</div>
+        <div class="form-group">
+            <input type="text" class="textbox" name="filter" @onkeyup="@KeyUp" @bind="Keyword" placeholder="kata kunci pencarian">
         </div>
-    </body>
-}
+        <div class="form-button inline">
+            <div class="checkbox">
+                <label><input @bind="@IsGeofence" type="checkbox"> Geofence</label>
+            </div>
+            <button class="primary" @onclick="SetArea">TERAPKAN GEOFENCE</button>
+            <button class="secondary" @onclick="ClearArea">HAPUS GEOFENCE</button>
+            <button class="" @onclick="RefreshData">CARI</button>
+        </div>
+        <div class="form-group">
+            <GoogleMap @ref="@map1" Id="map1" Options="@mapOptions" Height="600" OnAfterInit="@(async () => await OnAfterInitAsync())"></GoogleMap>
 
+        </div>
+    </div>
+
+
+
+
+
+    @if (DataPenerimaBantuan == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else if (DataPenerimaBantuan.Count <= 0)
+    {
+        <p><em>Belum ada data penerima bantuan</em></p>
+    }
+    else
+    {
+        <body onbeforeunload="TestDataTablesRemove('#gridData')">
+
+            <div class="table-block">
+                <div class="table-header">
+                    <div class="table-title">Daftar Penerima Bantuan</div>
+                </div>
+                <div class="table-content table-responsive">
+                    <table id="gridData" class="">
+                        <thead>
+                            <tr role="row">
+                                <th class="sorting_asc">Nama</th>
+                                <th class="sorting_desc">Alamat</th>
+                                <th class="sorting">Jml Jiwa</th>
+                                <th class="sorting">Kategori</th>
+                                <th class="sorting">Kebutuhan</th>
+                                <th class="sorting">Kondisi</th>
+                                <th class="sorting">Jarak</th>
+                                <th class="sorting">Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in DataPenerimaBantuan)
+                            {
+                                if (item.Aktif)
+                                {
+                                    <tr>
+                                        <td>@item.Nama</td>
+                                        <td>@item.Alamat</td>
+                                        <td>@item.JumlahJiwa jiwa</td>
+                                        <td>@item.Kategori.ToString()</td>
+                                        <td>@(AppConstants.JenisKebutuhan[item.Kebutuhan.ToString()])</td>
+                                        <td>@item.Kondisi (@(AppConstants.KondisiInDesc(item.Kondisi)))</td>
+                                        <td>
+                                            @item.Distance km
+                                        </td>
+                                        <td>
+                                            <div class="form-button inline">
+                                                <a href="" @onclick="(() => GetDirections2(currentLocation,new GeoLocation() { Latitude = item.Latitude, Longitude = item.Longitude } ))" @onclick:preventDefault class="icon-link"><img src="assets/img/icon/route.png"></a>
+                                                <a href="" @onclick:preventDefault @onclick="(() => PrepareForView(item))" data-toggle="modal" data-target="#modalBantuan" class="icon-link"><img src="assets/img/icon/package.png"></a>
+                                                <a href="" @onclick:preventDefault @onclick="(() => PrepareForViewLaporan(item))" data-toggle="modal" data-target="#modalLaporanPalsu" class="icon-link"><img src="assets/img/icon/trash.png"></a>
+                                            </div>
+                                            @*<input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
+                                                <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />*@
+
+                                        </td>
+                                    </tr>
+                                }
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-footer"></div>
+            </div>
+
+
+        </body>
+    }
+</div>
 <DaftarBantuan @ref="db" TaskObject=@itemObject>
     <CustomHeader>Daftar Bantuan</CustomHeader>
 </DaftarBantuan>

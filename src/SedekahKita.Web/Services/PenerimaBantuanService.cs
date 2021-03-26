@@ -38,7 +38,7 @@ namespace SedekahKita.Web.Services
         public List<PenerimaBantuan> FindByKeyword(string Keyword)
         {
             var data = from x in db.PenerimaBantuans
-                       where x.Alamat.Contains(Keyword) || x.Nama.Contains(Keyword) || x.Phone.Contains(Keyword)
+                       where x.Alamat.ToLower().Contains(Keyword) || x.Nama.ToLower().Contains(Keyword) || x.Phone.Contains(Keyword)
                        select x;
             return data.ToList();
         }

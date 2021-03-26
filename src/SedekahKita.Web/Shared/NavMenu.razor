@@ -1,50 +1,13 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
-    <a class="navbar-brand" href="">Sedekah Kita</a>
-    <button class="navbar-toggler" @onclick="ToggleNavMenu">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-</div>
+﻿<span class="menu-group">
+            <a href="/" class="active">Beranda</a>
+            <a href="/master/penerima-bantuan" class="">Penerima Bantuan</a>
+            <a href="/transaction/cari-penerima" class="">Kirim Bantuan</a>
+            <a href="/transaction/daftar-bantuan" class="">Daftar Bantuan</a>
+            <a href="/master/user-profile" class="">Profil Saya</a>
+            <a href="/logout?returnUrl=/" class="btn-logout">Logout</a>
+          </span>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Beranda
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="/master/penerima-bantuan">
-                <span class="oi oi-plus" aria-hidden="true"></span> Penerima Bantuan
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="/transaction/cari-penerima">
-                <span class="oi oi-person" aria-hidden="true"></span> Kirim Bantuan
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="/transaction/daftar-bantuan">
-                <span class="oi oi-heart" aria-hidden="true"></span> Daftar Bantuan
-            </NavLink>
-        </li>
-       
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="/master/user-profile">
-                <span class="oi oi-people" aria-hidden="true"></span> Profil Saya
-            </NavLink>
-        </li>
-
-
-    </ul>
-</div>
 
 @code {
-    bool collapseNavMenu = true;
-
-    string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
+  
 }

@@ -18,24 +18,33 @@
 }
 else
 {
-    <body onbeforeunload="TestDataTablesRemove('#gridData')">
-        <div class="table-responsive">
-        <table id="gridData" name="gridData" class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Nama</th>
-                    <th>Keterangan</th>
-                    <th>Alamat</th>
-                    <th>Jml Jiwa</th>
-                    <th>Kategori</th>
-                    <th>Kondisi</th>
-                    <th>Foto</th>
-                    <th>Actions</th>
+     <div class="table-block">
+          <div class="table-header">
+            <div class="table-title">Daftar Penerima Bantuan</div>
+            <div class="table-actions">
+              <a href=""  @onclick:preventDefault data-toggle="modal" data-target="#taskModal" @onclick="(() => InitializeitemObject())"><i class="bi bi-plus-circle"></i> <span>Tambah</span></a>
+              <div class="search-box">
+                <input type="text"  @bind="Keyword" @onkeyup="@KeyUp"  placeholder="Cari">
+                <i class="bi bi-search"></i>
+              </div>
+            </div>
+          </div>
+          <div class="table-content">
+            <table class="">
+              <thead>
+                <tr role="row">
+                  <th class="sorting_asc">Nama</th>
+                  <th class="sorting">Keterangan</th>
+                  <th class="sorting">Alamat</th>
+                  <th class="sorting">Jml Jiwa</th>
+                  <th class="sorting">Kategori</th>
+                  <th class="sorting">Kondisi</th>
+                  <th class="sorting">Foto</th>
+                  <th class="sorting">Tindakan</th>
                 </tr>
-
-            </thead>
-            <tbody>
-                @foreach (var item in DataPenerimaBantuan)
+                </thead>
+                <tbody>
+                     @foreach (var item in DataPenerimaBantuan)
                 {
                     if (item.Aktif)
                     {
@@ -70,22 +79,22 @@ else
                         </tr>
                     }
                 }
-            </tbody>
-        </table>
+               </tbody>
+            </table>
+          </div>
+          <div class="table-footer"></div>
         </div>
-    </body>
+    
 }
 
-<div>
-    <input type="button" data-toggle="modal" data-target="#taskModal" class="btn btn-primary" value="Tambah Penerima Bantuan" @onclick="(() => InitializeitemObject())" />
-</div>
+
 <ConfirmDialog OnClick="@Delete" />
 <PenerimaBantuanDetail TaskObject=@itemObject DataChanged="@DataChanged">
     <CustomHeader>@customHeader</CustomHeader>
 </PenerimaBantuanDetail>
 
 @code {
-
+    string Keyword;
     PenerimaBantuanService service;
     string customHeader = string.Empty;
     List<PenerimaBantuan> DataPenerimaBantuan;
@@ -104,13 +113,29 @@ else
         {
             UserName = user.Identity.Name;
             // Perform an action only available to authenticated (signed-in) users.
-            DataPenerimaBantuan = service.GetAllData();
+            ReloadData();
         }
 
 
     }
 
-
+      void KeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            ReloadData();
+        }
+    }
+     public void ReloadData()
+    {
+        if (string.IsNullOrEmpty(Keyword))
+        {
+            DataPenerimaBantuan = service.GetAllData();
+        }else{
+            DataPenerimaBantuan = service.FindByKeyword(Keyword.ToLower());
+        }
+        StateHasChanged();
+    }
     private void InitializeitemObject()
     {
         UserProfileService svc = new UserProfileService();
@@ -133,7 +158,7 @@ else
     }
     private async void DataChanged()
     {
-        DataPenerimaBantuan = service.GetAllData();
+        ReloadData();
         StateHasChanged();
     }
 
@@ -153,7 +178,7 @@ else
         service.UpdateData(itemObject);
             
         await jsRuntime.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
-        DataPenerimaBantuan = service.GetAllData();
+        ReloadData();
         itemObject = new PenerimaBantuan() { Id = -1 };
     }
     protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)

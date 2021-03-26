@@ -8,35 +8,39 @@
 
 @using SedekahKita.Web.Pages.Common
 
-<h3>Profil Saya</h3>
-<p>Silakan gunakan form ini jika ada perubahan data pribadi.</p>
-<hr>
-<div>
-    <div class="form-group">
-        <label for="fullname"><b>Nama Lengkap</b></label>
-        <input @bind="DataUser.FullName" type="text" class="form-control" placeholder="Masukan Nama Lengkap" name="fullname">
-    </div>
-    <div class="form-group">
-        <label for="phone"><b>Telepon</b></label>
-        <input @bind="DataUser.Phone" type="text" class="form-control" placeholder="Masukan No. HP" name="phone">
-    </div>
-    <div class="form-group">
-        <label for="alamat"><b>Alamat</b></label>
-        <input @bind="DataUser.Alamat" class="form-control" type="text" placeholder="Masukan Alamat" name="alamat">
-    </div>
-    <div class="form-group">
-        <label for="psw"><b>Password</b></label>
-        <input @bind="DataUser.Password" class="form-control" type="password" placeholder="Masukan Password" name="psw">
-    </div>
-    <div class="form-group">
-        <label for="psw-repeat"><b>Ulang Password</b></label>
-        <input @bind="RetypePass" type="password" class="form-control" placeholder="Repeat Password" name="psw-repeat">
-    </div>
+<div class="form-simple">
+    <h2>PROFIL SAYA</h2>
+    <div class="form">
+        <div class="form-group">
+            <label>Nama Lengkap</label>
+            <input @bind="DataUser.FullName" type="text" name="nama" placeholder="Masukan Nama Lengkap">
+        </div>
+        <div class="form-group">
+            <label>No HP</label>
+            <input type="text" @bind="DataUser.Phone" name="nohp" placeholder="Masukan No. HP">
+        </div>
 
-    <button @onclick="Simpan" class="btn btn-success">Simpan Perubahan</button>
-    <button @onclick="Kembali" class="btn btn-primary">Kembali</button>
-
+        <div class="form-group">
+            <label>Alamat</label>
+            <input type="text" @bind="DataUser.Alamat" name="alamat" placeholder="Masukan Alamat">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" @bind="DataUser.Password" name="password">
+            <button class="toggle" tabindex="-1"><i class="bi bi-eye"></i><i class="bi bi-eye-slash"></i></button>
+        </div>
+        <div class="form-group">
+            <label>Ulangi Password</label>
+            <input type="password" @bind="RetypePass" name="passwordconfirm">
+            <button class="toggle" tabindex="-1"><i class="bi bi-eye"></i><i class="bi bi-eye-slash"></i></button>
+        </div>
+        <br>
+        <div class="form-button">
+            <button class="primary" @onclick="Simpan">SIMPAN</button>
+        </div>
+    </div>
 </div>
+
 @code {
     UserProfile DataUser = new UserProfile();
     UserProfileService service;

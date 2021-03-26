@@ -1,14 +1,14 @@
 ﻿@inherits LayoutComponentBase
 @using Blazored.Toast.Configuration
-<div class="sidebar">
-    
-</div>
-<div class="main">
-        
-    <div class="content px-4">
-        @Body
+
+<div class="page">
+      <div class="sections">
+         @Body
+      </div>
     </div>
-</div>
+
+        
+       
 
 <BlazoredToasts Position="ToastPosition.BottomRight"
                 Timeout="10"

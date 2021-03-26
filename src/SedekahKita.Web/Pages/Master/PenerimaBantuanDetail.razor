@@ -7,59 +7,77 @@
 @using System.IO
 @inject IToastService toastService
 
-
 <div class="modal" tabindex="-1" role="dialog" id="taskModal">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">@CustomHeader</h5>
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">@CustomHeader</h5>
 
 
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="ex3" style="height:400px;">
-                    <EditForm Model="@TaskObject" OnValidSubmit="@HandleValidSubmit">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary></ValidationSummary>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">×</span>
+              </button>
+          </div>
+          <div class="modal-body">
+                <div class="form">
+            <EditForm Model="@TaskObject" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary></ValidationSummary>
+                <div class="form-group">
+                    <label for="nama">Nama</label>
+                    <input type="hidden" @bind-value="@TaskObject.Id" />
+                    <InputText id="nama" class="form-control" @bind-Value="@TaskObject.Nama" />
+                    <ValidationMessage For="@(() => TaskObject.Nama)" />
+                </div>
+                <div class="form-group">
+                    <label for="ket">Keterangan</label>
+                    <InputTextArea id="ket" class="form-control" @bind-Value="@TaskObject.Keterangan" />
+                    <ValidationMessage For="@(() => TaskObject.Keterangan)" />
+                </div>
+                <div class="form-group">
+                    <label for="alamat">Alamat</label>
+                    <InputTextArea id="alamat" class="form-control" @bind-Value="@TaskObject.Alamat" />
+                    <ValidationMessage For="@(() => TaskObject.Alamat)" />
+                </div>
+                <div class="form-group">
+                    <label>Lokasi di Peta</label>
+                    <a class="btn btn-default" style="cursor:crosshair;" @onclick="(() => PrepareForPick())" data-toggle="modal" data-target="#locationModal">Pilih Lokasi di Peta</a>
+
+                </div>
+                <div class="form-columns">
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="nama">Nama</label>
-                            <input type="hidden" @bind-value="@TaskObject.Id" />
-                            <InputText id="nama" class="form-control" @bind-Value="@TaskObject.Nama" />
-                            <ValidationMessage For="@(() => TaskObject.Nama)" />
-                        </div>
-                        <div class="form-group">
-                            <label for="ket">Keterangan</label>
-                            <InputTextArea id="ket" class="form-control" @bind-Value="@TaskObject.Keterangan" />
-                            <ValidationMessage For="@(() => TaskObject.Keterangan)" />
-                        </div>
-                        <div class="form-group">
-                            <label for="alamat">Alamat</label>
-                            <InputTextArea id="alamat" class="form-control" @bind-Value="@TaskObject.Alamat" />
-                            <ValidationMessage For="@(() => TaskObject.Alamat)" />
-                        </div>
-                        <div class="form-group">
-                            <label for="lokasi">Lokasi di Map</label>
-                            <br />
                             <input @bind="TaskObject.Latitude" type="text" placeholder="latitude" />
-                            <input @bind="TaskObject.Longitude" type="text" placeholder="longitude" />
-                            <p>isi dengan latitude dan longitude</p>
-                            <a class="btn btn-success" style="cursor:crosshair;" @onclick="(() => PrepareForPick())" data-toggle="modal" data-target="#locationModal">Pilih Lokasi di Map</a>
+                            <label>Latitude</label>
                         </div>
+                    </div>
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="jmljiwa">Jumlah Jiwa (orang)</label>
+                            <input @bind="TaskObject.Longitude" type="text" placeholder="longitude" />
+                            <label>Longitude</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-columns">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Jumlah Jiwa (orang)</label>
                             <InputNumber min="1" max="999999" id="jmljiwa" class="form-control" @bind-Value="@TaskObject.JumlahJiwa" />
                             <ValidationMessage For="@(() => TaskObject.JumlahJiwa)" />
                         </div>
+                    </div>
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="kondisi">Kondisi (1-10/baik-buruk)</label>
+                            <label>Kondisi (1-10/baik-buruk)</label>
                             <InputNumber min="1" max="10" id="kondisi" class="form-control" @bind-Value="@TaskObject.Kondisi" />
                             <ValidationMessage For="@(() => TaskObject.Kondisi)" />
                         </div>
+                    </div>
+                </div>
+                <div class="form-columns">
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="kebutuhan">Kebutuhan</label>
+                            <label>Kebutuhan</label>
                             <select @bind="@TaskObject.Kebutuhan">
                                 <option>Pilih</option>
                                 @foreach (var item in Enum.GetValues(typeof(StatusKebutuhan)).Cast<StatusKebutuhan>())
@@ -70,8 +88,10 @@
                             </select>
                             <ValidationMessage For="@(() => TaskObject.Kebutuhan)" />
                         </div>
+                    </div>
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="kategori">Kategori</label>
+                            <label>Kategori</label>
                             <select @bind="@TaskObject.Kategori">
                                 <option>Pilih</option>
                                 @foreach (var item in AppConstants.KategoriPenerima)
@@ -82,40 +102,50 @@
                             </select>
                             <ValidationMessage For="@(() => TaskObject.Kategori)" />
                         </div>
+                    </div>
+                </div>
+                <div class="form-columns">
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="phone">No HP (opsional)</label>
+                            <label>No HP (opsional)</label>
                             <InputText id="phone" class="form-control" @bind-Value="@TaskObject.Phone" />
                             <ValidationMessage For="@(() => TaskObject.Phone)" />
                         </div>
+                    </div>
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="email">Email (opsional)</label>
+                            <label>Email (opsional)</label>
                             <InputText id="email" class="form-control" @bind-Value="@TaskObject.Email" />
                             <ValidationMessage For="@(() => TaskObject.Email)" />
                         </div>
-
-                        <div class="checkbox">
-                            <label><input @bind="@TaskObject.Aktif" type="checkbox">Aktif</label>
-                        </div>
-                        <div class="form-group">
-                            <label for="nim">Upload Foto</label>
-                            @if (!string.IsNullOrEmpty(FileUrl))
-                            {
-                                <img src="@FileUrl" alt="produk" width="250" />
-                            }
-                            <InputFile OnChange="HandleFileSelected" />
-                            <div class="alert alert-warning">pilih gambar dan tunggu sampai gambar muncul</div>
-                        </div>
-
-
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-
-                    </EditForm>
                     </div>
                 </div>
+
+
+                <div class="checkbox">
+                    <label><input @bind="@TaskObject.Aktif" type="checkbox">Aktif</label>
+                </div>
+                <div class="form-group">
+                    <label for="nim">Upload Foto</label>
+                    @if (!string.IsNullOrEmpty(FileUrl))
+                    {
+                        <img src="@FileUrl" alt="produk" width="250" />
+                    }
+                    <InputFile OnChange="HandleFileSelected" />
+                    <div class="alert alert-warning">pilih gambar dan tunggu sampai gambar muncul</div>
+                </div>
+
+
+                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
+            </EditForm>
         </div>
-    </div>
+          </div>
+      </div>
+  </div>
 </div>
+
 <PickLocation @ref="loc" DataChanged="@RefreshLocation">
     <CustomHeader>Pilih Lokasi</CustomHeader>
 </PickLocation>

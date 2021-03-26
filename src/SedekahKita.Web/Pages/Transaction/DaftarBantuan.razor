@@ -1,5 +1,4 @@
-﻿
-@inject IJSRuntime jsRuntime
+﻿@inject IJSRuntime jsRuntime
 @using SedekahKita.Web.Models
 @using SedekahKita.Web.Data
 @using SedekahKita.Web.Services
@@ -13,35 +12,42 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">@CustomHeader</h5>
+
+
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">×</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="ex3" style="height:400px;">
 
-                    @if (DataBantuan == null)
-                    {
-                        <p><em>Loading...</em></p>
-                    }
-                    else
-                    {
-                        <body onbeforeunload="TestDataTablesRemove('#gridData')">
-                            <div class="table-responsive">
-
-                                <table id="gridData" name="gridData" class="table table-striped">
+                <div class="flex">
+                    <h2><img src="assets/img/icon/package.png" width="30"></h2>
+                    <div class="form-button inline">
+                        <button class="plain primary" data-toggle="modal" data-target="#modalDetailBantuan" @onclick="(() => InitializeitemObject())"><i class="bi bi-plus-circle"></i> <span>Tambah</span></button>
+                        <button class="plain " data-dismiss="modal"><span>Batal</span></button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <div class="table-block">
+                        <div class="table-content">
+                            @if (DataBantuan == null)
+                            {
+                                <p><em>Loading...</em></p>
+                            }
+                            else
+                            {
+                                <table class="">
                                     <thead>
-                                        <tr>
-                                            <th>Penerima</th>
-                                            <th>Alamat</th>
-                                            <th>Keterangan</th>
-                                            <th>Jumlah</th>
-                                            <th>Status</th>
-                                            <th>Pengirim</th>
-                                            <th>Foto</th>
-                                            <th>Actions</th>
+                                        <tr role="row">
+                                            <th class="sorting_asc">Penerima</th>
+                                            <th class="sorting_desc">Alamat</th>
+                                            <th class="sorting">Keterangan</th>
+                                            <th class="sorting">Jumlah</th>
+                                            <th class="sorting">Status</th>
+                                            <th class="sorting">Pengirim</th>
+                                            <th class="sorting">Foto</th>
+                                            <th class="sorting">Tindakan</th>
                                         </tr>
-
                                     </thead>
                                     <tbody>
                                         @foreach (var item in DataBantuan)
@@ -67,8 +73,8 @@
                                                 <td>
                                                     @if (UserName.ToLower() == item.Owner.ToLower())
                                                     {
-                                                        <input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#modalDetailBantuan" value="Ubah" />
-                                                        <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+                                                        <a href="" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#modalDetailBantuan" @onclick:preventDefault class="icon-link"><img src="assets/img/icon/edit.png"></a>
+                                                        <a href="" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" @onclick:preventDefault class="icon-link"><img src="assets/img/icon/trash.png"></a>
                                                     }
                                                     else
                                                     {
@@ -76,22 +82,22 @@
                                                     }
                                                 </td>
                                             </tr>
-
                                         }
+
                                     </tbody>
                                 </table>
-                            </div>
-                        </body>
+                            }
 
-                        <div>
-                            <input type="button" data-toggle="modal" data-target="#modalDetailBantuan" class="btn btn-primary" value="Tambah Bantuan" @onclick="(() => InitializeitemObject())" />
                         </div>
-                    }
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
+
+
 
 <BantuanDetail @ref="bd" TaskObject=@itemObject DataChanged="@DataChangedBantuan">
     <CustomHeader>@customHeader</CustomHeader>
@@ -99,7 +105,6 @@
 <ConfirmDialog OnClick="@Delete" />
 
 @code {
-
     [Parameter]
     public RenderFragment CustomHeader { get; set; }
     [Parameter]

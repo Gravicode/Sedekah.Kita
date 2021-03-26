@@ -1,34 +1,27 @@
 ﻿@page "/"
 @inject NavigationManager NavMgr
 
-<b>Selamat datang Pak/Bu. Silakan dipilih menunya</b>
+<div class="boxes">
+    <div class="boxes-inner flex">
+        <a href="/master/penerima-bantuan" class="box" style="background-image: url(assets/img/placeholder02.png);">
+            <span class="title">MENAMBAH PENERIMA BANTUAN</span>
+        </a>
+        <a href="/transaction/cari-penerima" class="box" style="background-image: url(assets/img/placeholder03.png);">
+            <span class="title">MENCARI PENERIMA BANTUAN</span>
+        </a>
+        <a href="/transaction/daftar-bantuan" class="box" style="background-image: url(assets/img/placeholder04.png);">
+            <span class="title">DAFTAR BANTUAN</span>
+        </a>
+    </div>
+</div>
 
-<table class="table table-hover table-bordered">
-    <tr>
-        <th>Menu</th>
-
-        <th>Action</th>
-    </tr>
-    <tr>
-        <td>Menambah penerima bantuan.</td>
-        <td><button @onclick="@(()=>BukaUrl("/master/penerima-bantuan"))" class="btn btn-info">Buka</button></td>
-    </tr>
-    <tr>
-        <td>Mencari penerima bantuan.</td>
-        <td><button @onclick="@(()=>BukaUrl("/transaction/cari-penerima"))" class="btn btn-info">Buka</button></td>
-    </tr>
-    <tr>
-        <td>Daftar bantuan.</td>
-        <td><button @onclick="@(()=>BukaUrl("/transaction/daftar-bantuan"))" class="btn btn-info">Buka</button></td>
-    </tr>
-</table>
 
 @code{
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
     void BukaUrl(string url)
     {
-         NavMgr.NavigateTo(url);
+        NavMgr.NavigateTo(url);
     }
     async Task Test()
     {

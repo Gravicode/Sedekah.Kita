@@ -7,52 +7,59 @@
 @using System.IO
 @inject IToastService toastService
 
-
 <div class="modal" tabindex="-1" role="dialog" id="modalDetailBantuan">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">@CustomHeader</h5>
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">@CustomHeader</h5>
 
 
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="ex3" style="height:400px;">
-                    <EditForm Model="@TaskObject" OnValidSubmit="@HandleValidSubmit">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary></ValidationSummary>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">×</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <div class="form">
+            <EditForm Model="@TaskObject" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary></ValidationSummary>
+                <div class="form-group">
+                    <label for="nama">Pengirim</label>
+                    <input type="hidden" @bind-value="@TaskObject.Id" />
+                    <InputText id="nama" class="form-control" @bind-Value="@TaskObject.Pengirim" />
+                    <ValidationMessage For="@(() => TaskObject.Pengirim)" />
+                </div>
+                <div class="form-group">
+                    <label for="HpPengirim">Hp Pengirim</label>
+                    <InputTextArea id="HpPengirim" class="form-control" @bind-Value="@TaskObject.HpPengirim" />
+                    <ValidationMessage For="@(() => TaskObject.HpPengirim)" />
+                </div>
+                <div class="form-group">
+                    <label for="AlamatPengirim">Alamat Pengirim</label>
+                    <InputTextArea id="AlamatPengirim" class="form-control" @bind-Value="@TaskObject.AlamatPengirim" />
+                    <ValidationMessage For="@(() => TaskObject.AlamatPengirim)" />
+                </div>
+                <div class="form-group">
+                    <label for="ket">Keterangan</label>
+                    <InputTextArea id="ket" class="form-control" @bind-Value="@TaskObject.Keterangan" />
+                    <ValidationMessage For="@(() => TaskObject.Keterangan)" />
+                </div>
+
+                <div class="form-columns">
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="nama">Pengirim</label>
-                            <input type="hidden" @bind-value="@TaskObject.Id" />
-                            <InputText id="nama" class="form-control" @bind-Value="@TaskObject.Pengirim" />
-                            <ValidationMessage For="@(() => TaskObject.Pengirim)" />
-                        </div>
-                        <div class="form-group">
-                            <label for="HpPengirim">Hp Pengirim</label>
-                            <InputTextArea id="HpPengirim" class="form-control" @bind-Value="@TaskObject.HpPengirim" />
-                            <ValidationMessage For="@(() => TaskObject.HpPengirim)" />
-                        </div>
-                        <div class="form-group">
-                            <label for="AlamatPengirim">Alamat Pengirim</label>
-                            <InputTextArea id="AlamatPengirim" class="form-control" @bind-Value="@TaskObject.AlamatPengirim" />
-                            <ValidationMessage For="@(() => TaskObject.AlamatPengirim)" />
-                        </div>
-                        <div class="form-group">
-                            <label for="ket">Keterangan</label>
-                            <InputTextArea id="ket" class="form-control" @bind-Value="@TaskObject.Keterangan" />
-                            <ValidationMessage For="@(() => TaskObject.Keterangan)" />
-                        </div>
-                        <div class="form-group">
-                            <label for="jml">Jumlah</label>
+                            <label>Jumlah</label>
                             <InputNumber min="1" max="9999999999" id="jml" class="form-control" @bind-Value="@TaskObject.Jumlah" />
                             <ValidationMessage For="@(() => TaskObject.Jumlah)" />
                         </div>
-
+                    </div>
+                    <div class="form-col">
+                    </div>
+                </div>
+                <div class="form-columns">
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="satuan">Satuan</label>
+                            <label>Satuan</label>
                             <select @bind="@TaskObject.Satuan">
                                 <option>Pilih</option>
                                 <option value="Ltr">Liter</option>
@@ -67,9 +74,10 @@
                             </select>
                             <ValidationMessage For="@(() => TaskObject.Satuan)" />
                         </div>
-
+                    </div>
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="kebutuhan">Jenis</label>
+                            <label>Jenis</label>
                             <select @bind="@TaskObject.Jenis">
                                 <option>Pilih</option>
                                 @foreach (var item in AppConstants.JenisBantuan)
@@ -80,19 +88,32 @@
                             </select>
                             <ValidationMessage For="@(() => TaskObject.Jenis)" />
                         </div>
-
+                    </div>
+                </div>
+                <div class="form-columns">
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="tglkirim">Tanggal Kirim</label>
+                            <label>Tanggal Kirim</label>
                             <InputDate id="tglkirim" class="form-control" @bind-Value="@TaskObject.TanggalKirim" />
+                            <button class="" tabindex="-1"><i class="bi bi-calendar3"></i></button>
                             <ValidationMessage For="@(() => TaskObject.TanggalKirim)" />
+
                         </div>
+                    </div>
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="tglterima">Tanggal Terima</label>
+                            <label>Tanggal Terima</label>
                             <InputDate id="tglterima" class="form-control" @bind-Value="@TaskObject.TanggalTerima" />
+                            <button class="" tabindex="-1"><i class="bi bi-calendar3"></i></button>
                             <ValidationMessage For="@(() => TaskObject.TanggalTerima)" />
+
                         </div>
+                    </div>
+                </div>
+                <div class="form-columns">
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="kebutuhan">Status</label>
+                            <label>Status</label>
                             <select @bind="@TaskObject.Status">
                                 <option>Pilih</option>
                                 @foreach (var item in Enum.GetValues(typeof(StatusBantuan)).Cast<StatusBantuan>())
@@ -103,27 +124,37 @@
                             </select>
                             <ValidationMessage For="@(() => TaskObject.Status)" />
                         </div>
-
-                        <div class="form-group">
-                            <label for="nim">Upload Foto</label>
+                    </div>
+                    <div class="form-col">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Upload Foto</label>
+                    <div class="upload-box">
+                        <div class="file">
                             @if (!string.IsNullOrEmpty(FileUrl))
                             {
                                 <img src="@FileUrl" alt="produk" width="250" />
                             }
                             <InputFile OnChange="HandleFileSelected" />
-                            <div class="alert alert-warning">pilih gambar dan tunggu sampai gambar muncul</div>
+                            <span>TAMBAH FOTO</span>
                         </div>
-
-
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-
-                    </EditForm>
+                    </div>
+                    <div class="alert alert-warning">pilih gambar dan tunggu sampai gambar muncul</div>
+ 
                 </div>
-            </div>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
+            </EditForm>
+
+
         </div>
-    </div>
+          </div>
+      </div>
+  </div>
 </div>
+
 @code {
     public string FileUrl { get; set; }
     [Parameter]

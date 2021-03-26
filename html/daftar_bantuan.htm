@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link href="assets/img/favicon.png" rel="icon" type="image/x-icon" />
+    <title>Sedekah Kita | Daftar Bantuan</title>
+  </head>
+  <body>
+    <div class="page">
+      <div class="page-header">
+        <div class="logo">
+          <img src="assets/img/logo.png" srcset="assets/img/logo.png 1x, assets/img/logo@2x.png 2x" alt="Sedekah Kita" >
+        </div>
+        <div class="page-menu">
+          <input type="checkbox" id="mobileMenuToggle">
+          <span class="menu-lines">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="menu-group">
+            <a href="home.htm" class="">Beranda</a>
+            <a href="penerima_bantuan.htm" class="">Penerima Bantuan</a>
+            <a href="kirim_bantuan.htm" class="">Kirim Bantuan</a>
+            <a href="daftar_bantuan.htm" class="active">Daftar Bantuan</a>
+            <a href="profil.htm" class="">Profil Saya</a>
+            <a href="index.htm" class="btn-logout">Logout</a>
+          </span>
+        </div>
+      </div>
+      <div class="page-content clean">
+        <div class="table-block">
+          <div class="table-header">
+            <div class="table-title">Daftar Bantuan</div>
+            <div class="table-actions">
+              <div class="search-box">
+                <input type="text" placeholder="Cari">
+                <i class="bi bi-search"></i>
+              </div>
+            </div>
+          </div>
+          <div class="table-content">
+            <table class="">
+              <thead>
+                <tr role="row">
+                  <th class="sorting_asc">Penerima</th>
+                  <th class="sorting_desc">Alamat</th>
+                  <th class="sorting">Keterangan</th>
+                  <th class="sorting">Jumlah</th>
+                  <th class="sorting">Status</th>
+                  <th class="sorting">Pengirim</th>
+                  <th class="sorting">Foto</th>
+                  <th class="sorting">Tindakan</th>
+                </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Alfiyah</td>
+                    <td>Jalan Jayanti 65. Jalan jayanti, gang 100. Lenteng Agung raya. Jagakarsa</td>
+                    <td>Beras</td>
+                    <td>10 liter</td>
+                    <td>Menunggu</td>
+                    <td>Muhammad Ibnu Fadhil</td>
+                    <td>tidak ada foto</td>
+                    <td>
+                      <div class="form-button inline">
+                        <a href="#" class="icon-link" onclick="openEdit(this); return false;"><img src="assets/img/icon/edit.png"></a>
+                        <a href="#" class="icon-link" onclick="deleteItem(this); return false;"><img src="assets/img/icon/trash.png"></a>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Alfiyah</td>
+                    <td>Jalan Jayanti 65. Jalan jayanti, gang 100. Lenteng Agung raya. Jagakarsa</td>
+                    <td>Beras</td>
+                    <td>10 liter</td>
+                    <td>Menunggu</td>
+                    <td>Muhammad Ibnu Fadhil</td>
+                    <td><img src="assets/img/placeholder01.png" width="100" alt="foto"></td>
+                    <td>
+                      <div class="form-button inline">
+                        <a href="#" class="icon-link" onclick="openEdit(this); return false;"><img src="assets/img/icon/edit.png"></a>
+                        <a href="#" class="icon-link" onclick="deleteItem(this); return false;"><img src="assets/img/icon/trash.png"></a>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Alfiyah</td>
+                    <td>Jalan Jayanti 65. Jalan jayanti, gang 100. Lenteng Agung raya. Jagakarsa</td>
+                    <td>Beras</td>
+                    <td>10 liter</td>
+                    <td>Menunggu</td>
+                    <td>Muhammad Ibnu Fadhil</td>
+                    <td><img src="assets/img/placeholder02.png" width="100" alt="foto"></td>
+                    <td>
+                      <div class="form-button inline">
+                        <a href="#" class="icon-link" onclick="openEdit(this); return false;"><img src="assets/img/icon/edit.png"></a>
+                        <a href="#" class="icon-link" onclick="deleteItem(this); return false;"><img src="assets/img/icon/trash.png"></a>
+                      </div>
+                    </td>
+                  </tr>
+                    </tbody>
+            </table>
+          </div>
+            <div class="table-footer"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="formDaftar" class="dialog-content" >
+      <div class="flex">
+        <h2><img src="assets/img/icon/package.png" width="30"> <span>DAFTAR BANTUAN</span></h2>
+        <div class="form-button inline">
+          <button class="plain primary" onclick="openAdd()"><i class="bi bi-plus-circle"></i> <span>Tambah</span></button>
+          <button class="plain " onclick="fw_dialogClose()"><span>Batal</span></button>
+        </div>
+      </div>
+      <div class="table-block">
+        <div class="table-content">
+          <table class="">
+            <thead>
+              <tr role="row">
+                <th class="sorting_asc">Penerima</th>
+                <th class="sorting_desc">Alamat</th>
+                <th class="sorting">Keterangan</th>
+                <th class="sorting">Jumlah</th>
+                <th class="sorting">Status</th>
+                <th class="sorting">Pengirim</th>
+                <th class="sorting">Foto</th>
+                <th class="sorting">Tindakan</th>
+              </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Alfiyah</td>
+                  <td>Jalan Jayanti 65. Jalan jayanti, gang 100. Lenteng Agung raya. Jagakarsa</td>
+                  <td>Beras</td>
+                  <td>10 liter</td>
+                  <td>Menunggu</td>
+                  <td>Muhammad Ibnu Fadhil</td>
+                  <td>tidak ada foto</td>
+                  <td>
+                    <div class="form-button inline">
+                      <a href="#" class="icon-link" onclick="openEdit(this); return false;"><img src="assets/img/icon/edit.png"></a>
+                      <a href="#" class="icon-link" onclick="deleteItem(this); return false;"><img src="assets/img/icon/trash.png"></a>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Alfiyah</td>
+                  <td>Jalan Jayanti 65. Jalan jayanti, gang 100. Lenteng Agung raya. Jagakarsa</td>
+                  <td>Beras</td>
+                  <td>10 liter</td>
+                  <td>Menunggu</td>
+                  <td>Muhammad Ibnu Fadhil</td>
+                  <td>tidak ada foto</td>
+                  <td>
+                    <div class="form-button inline">
+                      <a href="#" class="icon-link" onclick="openEdit(this); return false;"><img src="assets/img/icon/edit.png"></a>
+                      <a href="#" class="icon-link" onclick="deleteItem(this); return false;"><img src="assets/img/icon/trash.png"></a>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Alfiyah</td>
+                  <td>Jalan Jayanti 65. Jalan jayanti, gang 100. Lenteng Agung raya. Jagakarsa</td>
+                  <td>Beras</td>
+                  <td>10 liter</td>
+                  <td>Menunggu</td>
+                  <td>Muhammad Ibnu Fadhil</td>
+                  <td>tidak ada foto</td>
+                  <td>
+                    <div class="form-button inline">
+                      <a href="#" class="icon-link" onclick="openEdit(this); return false;"><img src="assets/img/icon/edit.png"></a>
+                      <a href="#" class="icon-link" onclick="deleteItem(this); return false;"><img src="assets/img/icon/trash.png"></a>
+                    </div>
+                  </td>
+                </tr>
+                  </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="formAdd" class="dialog-content" >
+      <h2>TAMBAH BANTUAN</h2>
+      <br>
+      <div class="form">
+        <div class="form-group">
+          <label>Nama Pengirim</label>
+          <input type="text" name="nama">
+        </div>
+        <div class="form-group">
+          <label>HP Pengirim</label>
+          <input type="text" name="nohp">
+        </div>
+        <div class="form-group">
+          <label>Alamat Pengirim</label>
+          <input type="text" name="alamat">
+        </div>
+        <div class="form-group">
+          <label>Keterangan</label>
+          <input type="text" name="keterangan">
+        </div>
+        <div class="form-columns">
+          <div class="form-col">
+            <div class="form-group">
+              <label>Jumlah</label>
+              <input type="number" name="jumlah">
+            </div>    
+          </div>
+          <div class="form-col">
+          </div>
+        </div>
+        <div class="form-columns">
+          <div class="form-col">
+            <div class="form-group">
+              <label>Satuan</label>
+              <select name="satuan">
+                <option>Pilih</option>
+                <option value="ltr">Liter</option>
+                <option value="kg">Kilo</option>
+                <option value="pcs">Pcs</option>
+                <option value="pack">Paket</option>
+                <option value="rp">Rupiah</option>
+                <option value="box">Box</option>
+                <option value="ton">Ton</option>
+                <option value="bgn">Bangunan</option>
+                <option value="mtr">Meter</option>
+              </select>
+            </div>    
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label>Jenis</label>
+              <select name="jenis"><option>Pilih</option>
+                <option value="makanan">Makanan</option>
+                <option value="obat">Obat</option>
+                <option value="uang">Uang</option>
+                <option value="buku">Buku</option>
+                <option value="tempat">Tempat Tinggal</option>
+                <option value="pekerjaan">Pekerjaan</option>
+                <option value="lainnya">Lainnya</option></select>
+            </div>    
+          </div>
+        </div>
+        <div class="form-columns">
+          <div class="form-col">
+            <div class="form-group">
+              <label>Tanggal Kirim</label>
+              <input type="text" name="tglkirim" placeholder="Pilih Tanggal">
+              <button class="" tabindex="-1"><i class="bi bi-calendar3"></i></button>
+            </div>    
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label>Tanggal Terima</label>
+              <input type="text" name="tglterima" placeholder="Pilih Tanggal">
+              <button class="" tabindex="-1"><i class="bi bi-calendar3"></i></button>
+            </div>    
+          </div>
+        </div>
+        <div class="form-columns">
+          <div class="form-col">
+            <div class="form-group">
+              <label>Status</label>
+              <select name=status">
+                <option>Pilih</option>
+                <option value="menunggu">Menunggu</option>
+                <option value="dikirim">Dikirim</option>
+                <option value="diterima">Diterima</option>
+                <option value="batal">Batal</option>
+              </select>
+            </div>    
+          </div>
+          <div class="form-col">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Upload Foto</label>
+          <div class="upload-box">
+            <div class="file">
+              <input type="file" name="image">
+              <span>TAMBAH FOTO</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="formEdit" class="dialog-content" >
+      <h2>UBAH BANTUAN</h2>
+      <br>
+      <div class="form">
+        <div class="form-group">
+          <label>Nama Pengirim</label>
+          <input type="text" name="nama" value="Muhammad Ibnu Fadil">
+        </div>
+        <div class="form-group">
+          <label>HP Pengirim</label>
+          <input type="text" name="nohp" value="012345678">
+        </div>
+        <div class="form-group">
+          <label>Alamat Pengirim</label>
+          <input type="text" name="alamat" value="Jl. pelan2 banyak anak kecil">
+        </div>
+        <div class="form-group">
+          <label>Keterangan</label>
+          <input type="text" name="keterangan" value="Beras">
+        </div>
+        <div class="form-columns">
+          <div class="form-col">
+            <div class="form-group">
+              <label>Jumlah</label>
+              <input type="number" name="jumlah" value="10">
+            </div>    
+          </div>
+          <div class="form-col">
+          </div>
+        </div>
+        <div class="form-columns">
+          <div class="form-col">
+            <div class="form-group">
+              <label>Satuan</label>
+              <select name="satuan">
+                <option>Pilih</option>
+                <option value="ltr" selected>Liter</option>
+                <option value="kg">Kilo</option>
+                <option value="pcs">Pcs</option>
+                <option value="pack">Paket</option>
+                <option value="rp">Rupiah</option>
+                <option value="box">Box</option>
+                <option value="ton">Ton</option>
+                <option value="bgn">Bangunan</option>
+                <option value="mtr">Meter</option>
+              </select>
+            </div>    
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label>Jenis</label>
+              <select name="jenis"><option>Pilih</option>
+                <option value="makanan" selected>Makanan</option>
+                <option value="obat">Obat</option>
+                <option value="uang">Uang</option>
+                <option value="buku">Buku</option>
+                <option value="tempat">Tempat Tinggal</option>
+                <option value="pekerjaan">Pekerjaan</option>
+                <option value="lainnya">Lainnya</option></select>
+            </div>    
+          </div>
+        </div>
+        <div class="form-columns">
+          <div class="form-col">
+            <div class="form-group">
+              <label>Tanggal Kirim</label>
+              <input type="text" name="tglkirim" placeholder="Pilih Tanggal" value="2021-03-20">
+              <button class="" tabindex="-1"><i class="bi bi-calendar3"></i></button>
+            </div>    
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label>Tanggal Terima</label>
+              <input type="text" name="tglterima" placeholder="Pilih Tanggal">
+              <button class="" tabindex="-1"><i class="bi bi-calendar3"></i></button>
+            </div>    
+          </div>
+        </div>
+        <div class="form-columns">
+          <div class="form-col">
+            <div class="form-group">
+              <label>Status</label>
+              <select name=status">
+                <option>Pilih</option>
+                <option value="menunggu" selected>Menunggu</option>
+                <option value="dikirim">Dikirim</option>
+                <option value="diterima">Diterima</option>
+                <option value="batal">Batal</option>
+              </select>
+            </div>    
+          </div>
+          <div class="form-col">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Upload Foto</label>
+          <div class="upload-box">
+            <div class="preview"><img src="assets/img/placeholder01.png"></div>
+            <div class="preview"><img src="assets/img/placeholder02.png"></div>
+            <div class="preview"><img src="assets/img/placeholder03.png"></div>
+            <div class="file">
+              <input type="file" name="image">
+              <span>TAMBAH FOTO</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="assets/js/scripts.js" ></script>
+    <script type="text/javascript">
+      function deleteItem(obj){
+        fw_dialog('successDeleteDlg','DATA BERHASIL DIHAPUS',[{class:'primary',label:'OK',action:'fw_dialogClose(\'successDeleteDlg\')'}]);
+      }
+      function addDataSuccess(){
+        fw_dialog('successDlg','TAMBAH PENERIMA BANTUAN<br>BERHASIL',[{class:'primary',label:'KEMBALI',action:'fw_dialogClose();openList()'}]);
+      }
+      function editDataSuccess(){
+        fw_dialog('successDlg','UBAH PENERIMA BANTUAN<br>BERHASIL',[{class:'primary',label:'KEMBALI',action:'fw_dialogClose();openList()'}]);
+      }
+      function openList(){
+        fw_dialog('formDaftarDialog',$('#formDaftar'),null,'width:90%;max-width:800px;');
+      }
+      function openAdd(){
+        fw_dialog('dlgAdd',$('#formAdd'),[{class:'primary',label:'SIMPAN',action:'addDataSuccess()'},{class:'',label:'BATAL',action:'fw_dialogClose(\'dlgAdd\')'}],'width:90%;max-width:700px;');
+      }
+      function openEdit(obj){
+        fw_dialog('dlgEdit',$('#formEdit'),[{class:'primary',label:'SIMPAN',action:'editDataSuccess()'},{class:'',label:'BATAL',action:'fw_dialogClose(\'dlgEdit\')'}],'width:90%;max-width:700px;');
+      }
+    </script>
+  </body>
+</html>

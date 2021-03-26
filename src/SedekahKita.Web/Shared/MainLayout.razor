@@ -1,20 +1,29 @@
 ﻿@inherits LayoutComponentBase
 @using Blazored.Toast.Configuration
-<div class="sidebar">
-    <NavMenu />
-    <AuthControl></AuthControl>
-</div>
 
-<div class="main">
-    <div class="top-row px-4">
-        <LoginControl></LoginControl>
-        <a href="https://gravicode.com/" target="_blank">Kontak Kami</a>
+
+<AuthControl></AuthControl>
+<div class="page">
+    <div class="page-header">
+        <div class="logo">
+            <img src="assets/img/logo.png" srcset="assets/img/logo.png 1x, assets/img/logo@2x.png 2x" alt="Sedekah Kita">
+        </div>
+        <div class="page-menu">
+            <input type="checkbox" id="mobileMenuToggle">
+            <span class="menu-lines">
+                <span></span><span></span><span></span>
+            </span>
+            <NavMenu />
+
+        </div>
     </div>
-
-    <div class="content px-4">
+    <div class="page-content">
         @Body
+
     </div>
 </div>
+
+
 
 <BlazoredToasts Position="ToastPosition.BottomRight"
                 Timeout="10"

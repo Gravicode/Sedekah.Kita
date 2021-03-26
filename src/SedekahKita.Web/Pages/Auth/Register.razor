@@ -8,53 +8,85 @@
 @using SedekahKita.Web.Helpers
 @if (RegisterSuccess)
 {
-
-    <div class="alert alert-success">Akun berhasil dibuat, silakan <a href="/auth/login">Masuk</a>.</div>
-
+    <div class="left">
+        <div class="form-section">
+            <div class="logo">
+                <img src="assets/img/logo.png" srcset="assets/img/logo.png 1x, assets/img/logo@2x.png 2x" alt="Sedekah Kita">
+            </div>
+            <div class="form-center">
+                <div class="alert alert-success">Akun berhasil dibuat, silakan <a href="/auth/login">Masuk</a>.</div>
+            </div>
+        </div>
+    </div>
 }
 else
 {
-    <h1>Daftar ke Sedekah Kita</h1>
-    <p>Silakan isi data diri dibawah ini, terima kasih</p>
-    <hr>
-    <div>
-        <div class="form-group">
-            <label for="fullname"><b>Nama Lengkap</b></label>
-            <input @bind="DataUser.FullName" type="text" class="form-control" placeholder="Masukan Nama Lengkap" name="fullname">
-        </div>
-        <div class="form-group">
-            <label for="phone"><b>Telepon</b></label>
-            <input @bind="DataUser.Phone" type="text" class="form-control" placeholder="Masukan No. HP" name="phone">
-        </div>
-        <div class="form-group">
-            <label for="email"><b>Email</b></label>
-            <input @bind="DataUser.Username" class="form-control" type="text" placeholder="Masukan Email" name="email">
-        </div>
-        <div class="form-group">
-            <label for="alamat"><b>Alamat</b></label>
-            <input @bind="DataUser.Alamat" class="form-control" type="text" placeholder="Masukan Alamat" name="alamat">
-        </div>
-        <div class="form-group">
-            <label for="psw"><b>Password</b></label>
-            <input @bind="DataUser.Password" class="form-control" type="password" placeholder="Masukan Password" name="psw">
-        </div>
-        <div class="form-group">
-            <label for="psw-repeat"><b>Ulang Password</b></label>
-            <input @bind="RetypePass" type="password" class="form-control" placeholder="Repeat Password" name="psw-repeat">
-        </div>
 
-        <div class="form-group">
-            <img src="@CaptchaImage"><br/>
-            <a @onclick="GenerateCaptcha" style="cursor:grab;" class="icon reload" title="Reload captcha">Reload captcha</a>            
+    <div class="left">
+        <div class="form-section">
+            <div class="logo">
+                <img src="assets/img/logo.png" srcset="assets/img/logo.png 1x, assets/img/logo@2x.png 2x" alt="Sedekah Kita">
+            </div>
+            <div class="form-center">
+                <div class="form">
+                    <h2>DAFTAR UNTUK BERGABUNG</h2>
+                    <br>
+                    <div class="form-group">
+                        <label>Nama Lengkap</label>
+                        <input @bind="DataUser.FullName" placeholder="Masukan Nama Lengkap" type="text" name="nama">
+                    </div>
+                    <div class="form-group">
+                        <label>No HP</label>
+                        <input @bind="DataUser.Phone" placeholder="Masukan No. HP" type="text" name="nohp">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input @bind="DataUser.Username" placeholder="Masukan Email" type="email" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label>Alamat</label>
+                        <input type="text" @bind="DataUser.Alamat" placeholder="Masukan Alamat" name="alamat">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" @bind="DataUser.Password" name="password">
+                        <button class="toggle" tabindex="-1"><i class="bi bi-eye"></i><i class="bi bi-eye-slash"></i></button>
+                    </div>
+                    <div class="form-group">
+                        <label>Ulangi Password</label>
+                        <input type="password" @bind="RetypePass" name="passwordconfirm">
+                        <button class="toggle" tabindex="-1"><i class="bi bi-eye"></i><i class="bi bi-eye-slash"></i></button>
+                    </div>
+                    <div class="form-group">
+                        <img src="@CaptchaImage"><br />
+                        <a @onclick="GenerateCaptcha" style="cursor:grab;" class="icon reload" title="Reload captcha">Reload captcha</a>
+                    </div>
+                    <div class="form-group">
+                        <input @bind="TypedCaptcha" class="form-control" id="captchaid" type="text" placeholder="Retype captcha" required>
+                    </div>
+                    <br>
+                    <div class="form-button">
+                        <button class="primary" @onclick="DaftarUser">DAFTAR</button>
+                    </div>
+                    <div class="form-button">
+                        <button class="" @onclick="Kembali">KEMBALI KE LOGIN</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <input @bind="TypedCaptcha" class="form-control"  id="captchaid" type="text" placeholder="Retype captcha" required>
-        </div>
-        <button @onclick="DaftarUser" class="btn btn-success">Daftar</button>
-        <button @onclick="Kembali" class="btn btn-primary">Kembali ke Login</button>
-
     </div>
 }
+<div class="right banner-note">
+    <div class="banner-outer">
+        <div class="banner-inner">
+            <h2>“Tidak ada hari di mana hamba berada di dalamnya kecuali ada dua malaikat yang turun.Salah satu dari keduanya berkata, ‘Ya Allah, berikanlah ganti kepada orang yang berinfak,’ sedang yang satunya lagi berkata, ‘Ya Allah, berikanlah kehancuran kepada orang yang tidak mau berinfak"</h2>
+            <div class="banner-footer">
+                <div class="footnote">Shahih: HR. Al-Bukhari (no. 1442) dan Muslim (no. 1010).</div>
+                <img src="assets/img/img01.png" alt="">
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
     public string CaptchaImage { get; set; }

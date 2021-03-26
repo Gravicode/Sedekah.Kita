@@ -37,7 +37,7 @@ namespace SedekahKita.Web.Services
         public List<Bantuan> FindByKeyword(string Keyword)
         {
             var data = from x in db.Bantuans
-                       where x.Keterangan.Contains(Keyword) || x.Owner.Contains(Keyword) || x.Pengirim.Contains(Keyword)
+                       where x.Keterangan.ToLower().Contains(Keyword) || x.Owner.ToLower().Contains(Keyword) || x.Pengirim.ToLower().Contains(Keyword)
                        select x;
             return data.ToList();
         }
