@@ -100,6 +100,15 @@ a {
 .logo {
     height: 10%;
 }
+div#components-reconnect-modal a {
+    padding: 0 !important;
+    margin: 0 !important;
+    vertical-align: baseline;
+}
+#components-reconnect-modal button {
+    padding: 5px 20px;
+    border-radius: 10px;
+}
 /*#endregion DEFAULTS */
 
 /*#region FORM */
@@ -193,6 +202,16 @@ a {
         .form-group > input:focus + button {
             bottom: 3px;
         }
+
+.form-simple {
+    max-width: 350px;
+    text-align: left;
+    padding: 10px;
+}
+
+    .form-simple > h2 {
+        padding: 5px 9px 10px;
+    }
 
 .flright {
     margin-left: auto;
@@ -1043,6 +1062,7 @@ div#pwa-install-prompt {
         padding-top: 60px;
         overflow: hidden;
         transition: all 0.3s;
+        z-index: 9;
     }
 
         .page-menu span.menu-group > a {
