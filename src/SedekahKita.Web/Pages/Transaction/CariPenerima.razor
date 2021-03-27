@@ -20,7 +20,7 @@
         </div>
          <div class="form-group">
            <div class="checkbox">
-                <label><input @bind="@IsGeofence" type="checkbox">  Set Geofence</label>
+                <label class="checkbox"><input @bind="@IsGeofence" type="checkbox">  <span>Set Geofence</span></label>
             </div>
         </div>
         <div class="form-button inline">
@@ -86,9 +86,9 @@
                                         </td>
                                         <td>
                                             <div class="form-button inline">
-                                                <a href="" @onclick="(() => GetDirections2(currentLocation,new GeoLocation() { Latitude = item.Latitude, Longitude = item.Longitude } ))" @onclick:preventDefault class="icon-link"><img src="assets/img/icon/route.png"></a>
-                                                <a href="" @onclick:preventDefault @onclick="(() => PrepareForView(item))" data-toggle="modal" data-target="#modalBantuan" class="icon-link"><img src="assets/img/icon/package.png"></a>
-                                                <a href="" @onclick:preventDefault @onclick="(() => PrepareForViewLaporan(item))" data-toggle="modal" data-target="#modalLaporanPalsu" class="icon-link"><img src="assets/img/icon/trash.png"></a>
+                                                <a @onclick="(() => GetDirections2(currentLocation,new GeoLocation() { Latitude = item.Latitude, Longitude = item.Longitude } ))" @onclick:preventDefault="true" @onclick:stopPropagation="true" class="icon-link"><img src="assets/img/icon/route.png"></a>
+                                                <a @onclick:preventDefault="true" @onclick:stopPropagation="true" @onclick="(() => PrepareForView(item))" data-toggle="modal" data-target="#modalBantuan" class="icon-link"><img src="assets/img/icon/package.png"></a>
+                                                <a @onclick:preventDefault="true" @onclick:stopPropagation="true" @onclick="(() => PrepareForViewLaporan(item))" data-toggle="modal" data-target="#modalLaporanPalsu" class="icon-link"><img src="assets/img/icon/trash.png"></a>
                                             </div>
                                             @*<input type="button" class="btn btn-primary" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
                                                 <input type="button" class="btn btn-danger" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />*@

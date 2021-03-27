@@ -22,7 +22,7 @@ else
           <div class="table-header">
             <div class="table-title">Daftar Penerima Bantuan</div>
             <div class="table-actions">
-              <a href=""  @onclick:preventDefault data-toggle="modal" data-target="#taskModal" @onclick="(() => InitializeitemObject())"><i class="bi bi-plus-circle"></i> <span>Tambah</span></a>
+              <a  @onclick:preventDefault="true" @onclick:stopPropagation="true" data-toggle="modal" data-target="#taskModal" @onclick="(() => InitializeitemObject())"><i class="bi bi-plus-circle"></i> <span>Tambah</span></a>
               <div class="search-box">
                 <input type="text"  @bind="Keyword" @onkeyup="@KeyUp"  placeholder="Cari">
                 <i class="bi bi-search"></i>

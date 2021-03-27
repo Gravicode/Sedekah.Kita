@@ -44,7 +44,7 @@
                             <button @onclick="LoginNow" class="primary">LOGIN</button>
                         </div>
                         <div class="form-group">
-                            Belum punya akun? <a href="" @onclick:preventDefault @onclick="DaftarNow">Daftar disini</a>
+                            Belum punya akun? <a @onclick:preventDefault="true" @onclick:stopPropagation="true" @onclick="DaftarNow">Daftar disini</a>
                         </div>
                         @if (showError)
                         {

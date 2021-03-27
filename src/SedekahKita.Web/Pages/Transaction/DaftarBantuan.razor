@@ -73,8 +73,8 @@
                                                 <td>
                                                     @if (UserName.ToLower() == item.Owner.ToLower())
                                                     {
-                                                        <a href="" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#modalDetailBantuan" @onclick:preventDefault class="icon-link"><img src="assets/img/icon/edit.png"></a>
-                                                        <a href="" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" @onclick:preventDefault class="icon-link"><img src="assets/img/icon/trash.png"></a>
+                                                        <a @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#modalDetailBantuan" @onclick:preventDefault="true" @onclick:stopPropagation="true" class="icon-link"><img src="assets/img/icon/edit.png"></a>
+                                                        <a @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" @onclick:preventDefault="true" @onclick:stopPropagation="true" class="icon-link"><img src="assets/img/icon/trash.png"></a>
                                                     }
                                                     else
                                                     {
