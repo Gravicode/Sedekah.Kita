@@ -11,6 +11,9 @@ using SedekahKita.Web.Data;
 using SedekahKita.Tools;
 using Blazored.SessionStorage;
 using Blazored.LocalStorage;
+using System.Net;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 
 namespace SedekahKita.Web
 {
@@ -64,12 +67,19 @@ namespace SedekahKita.Web
             MailService.MailPort = int.Parse(Configuration["MailSettings:MailPort"]);
             SmsService.UserKey = Configuration["SmsSettings:ZenzivaUserKey"];
             SmsService.PassKey = Configuration["SmsSettings:ZenzivaPassKey"];
-           
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.KnownProxies.Add(IPAddress.Parse("103.189.234.251"));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -79,9 +89,10 @@ namespace SedekahKita.Web
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+                
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -100,6 +111,9 @@ namespace SedekahKita.Web
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
+
+            var db = new SedekahDB();
+            db.Database.EnsureCreated();
         }
     }
 }
